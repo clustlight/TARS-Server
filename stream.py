@@ -27,7 +27,3 @@ class StreamManager:
             return True
         else:
             return False
-
-
-if __name__ == '__main__':
-    freeze_support()
