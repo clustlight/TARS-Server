@@ -1,5 +1,5 @@
 from concurrent.futures import ProcessPoolExecutor
-from multiprocessing import Manager, freeze_support
+from multiprocessing import Manager
 
 from download import download
 
