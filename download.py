@@ -4,16 +4,15 @@ from time import sleep
 
 def download(event, url, name):
     process = Popen(
-        ['ffmpeg', '-i', url, '-movflags', 'faststart', '-c', 'copy', '-bsf:a', 'aac_adtstoasc', f"{name}.mp4"],
+        f"exec ffmpeg -i {url} -movflags faststart -c copy -bsf:a aac_adtstoasc {name}.mp4",
         shell=True,
-        stdin=PIPE,
-        stderr=DEVNULL
+        stdin=PIPE
     )
 
     while True:
-        sleep(5)
+        sleep(3)
         if event.is_set():
             process.communicate(str.encode("q"))
-            sleep(5)
+            sleep(3)
             process.terminate()
             return

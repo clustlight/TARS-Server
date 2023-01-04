@@ -1,5 +1,5 @@
 from concurrent.futures import ProcessPoolExecutor
-from multiprocessing import Manager
+from multiprocessing import Manager, freeze_support
 
 from download import download
 
@@ -27,3 +27,7 @@ class StreamManager:
             return True
         else:
             return False
+
+
+if __name__ == '__main__':
+    freeze_support()
