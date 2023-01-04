@@ -11,11 +11,16 @@ class StreamManager:
         self.manager = Manager()
 
     def start(self, user_name):
+        url = f"https://twitcasting.tv/{user_name}/metastream.m3u8?mode=source"
+
         if user_name not in self.events:
-            url = f"https://twitcasting.tv/{user_name}/metastream.m3u8?mode=source"
             event = self.manager.Event()
+            event.set()
             self.events[user_name] = event
-            self.executor.submit(download, event, url, user_name)
+
+        if self.events[user_name].is_set():
+            self.events[user_name].clear()
+            self.executor.submit(download, self.events[user_name], url, user_name)
             return True
         else:
             return False
