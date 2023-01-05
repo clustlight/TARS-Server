@@ -2,10 +2,15 @@ import datetime
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
 
+import file
 
-def download(event, url, name):
+def download(event, url, user_name):
+    user_name = file.replace_colon(user_name)
+    file.create_user_directory(user_name)
+
+    title = file.get_archive_file_name("ID_INSERT_HERE", user_name)
     process = Popen(
-        f"exec ffmpeg -i {url} -movflags faststart -c copy -bsf:a aac_adtstoasc {name}.mp4",
+        f"exec ffmpeg -i {url} -movflags faststart -c copy -bsf:a aac_adtstoasc ./outputs/{user_name}/{title}.mp4",
         shell=True,
         stdin=PIPE,
         stderr=DEVNULL
