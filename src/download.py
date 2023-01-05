@@ -1,8 +1,10 @@
-import datetime
+import logging
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
 
 import utils
+
+logger = logging.getLogger(__name__)
 
 def download(event, url, user_name):
     user_name = utils.replace_colon(user_name)
@@ -18,19 +20,19 @@ def download(event, url, user_name):
 
     while True:
         sleep(1)
-        print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: checking...")
+        logger.debug(f"{user_name}: checking...")
         if process.poll() is None:
-            print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: Stream is Ongoing")
+            logger.debug(f"{user_name}: Stream is Ongoing")
             if event.is_set():
-                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: Detect Abort Signal!")
-                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: Initialize ending process....")
+                logger.debug(f"{user_name}: Detect Abort Signal!")
+                logger.debug(f"{user_name}: Initialize ending process....")
                 process.communicate(str.encode("q"))
                 sleep(3)
                 process.terminate()
-                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: FFmpeg shutdown complete")
+                logger.debug(f"{user_name}: FFmpeg shutdown complete")
                 return
         else:
-            print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: Stream is Closed")
+            logger.debug(f"{user_name}: Stream is Closed")
             event.set()
             sleep(3)
             process.terminate()

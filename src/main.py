@@ -1,3 +1,4 @@
+import logging
 import os
 import pathlib
 from concurrent.futures import ProcessPoolExecutor
@@ -14,6 +15,7 @@ def start_websocket_client():
     pass
 
 def main():
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s  [%(levelname)s] (%(name)s) >> %(message)s')
     os.chdir(os.path.dirname(pathlib.Path(__file__).parent.resolve()))
     utils.create_output_directory()
     with ProcessPoolExecutor() as executor:
