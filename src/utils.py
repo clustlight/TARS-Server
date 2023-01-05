@@ -3,8 +3,8 @@ import os
 
 
 def create_output_directory():
-    if not os.path.exists("./outputs"):
-        os.mkdir("./outputs")
+    if not os.path.exists("../outputs"):
+        os.mkdir("../outputs")
 
 def create_user_directory(user_name):
     if not os.path.exists(f"./outputs/{user_name}"):

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from metadata import MetadataManager
+from src.metadata import MetadataManager
 from stream import StreamManager
 
 stream_manager = StreamManager()
