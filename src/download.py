@@ -18,6 +18,7 @@ def download(event, url, user_name):
         stderr=DEVNULL
     )
 
+    logger.info(f"Recording started ({user_name})")
     while True:
         sleep(1)
         logger.debug(f"Checking Recording Tasks... ({user_name})")
