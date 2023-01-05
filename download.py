@@ -12,20 +12,20 @@ def download(event, url, name):
     )
 
     while True:
-        sleep(3)
-        print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{name}: checking...")
+        sleep(1)
+        print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: checking...")
         if process.poll() is None:
-            print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{name}: Stream is Ongoing")
+            print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: Stream is Ongoing")
             if event.is_set():
-                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{name}: Detect Abort Signal!")
-                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{name}: Initialize ending process....")
+                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: Detect Abort Signal!")
+                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: Initialize ending process....")
                 process.communicate(str.encode("q"))
                 sleep(3)
                 process.terminate()
-                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{name}: FFmpeg shutdown complete")
+                print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: FFmpeg shutdown complete")
                 return
         else:
-            print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{name}: Stream is Closed")
+            print(f"{datetime.datetime.now().strftime('%H:%M:%S.%f')}:{user_name}: Stream is Closed")
             event.set()
             sleep(3)
             process.terminate()
