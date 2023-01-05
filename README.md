@@ -19,6 +19,6 @@ $ python -m pip install -r requirements.txt
 
 ### Run Server
 ```shell
-$ python main.py
+$ python src/main.py
 ```
 
