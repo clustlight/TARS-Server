@@ -20,20 +20,22 @@ def download(event, url, user_name):
 
     while True:
         sleep(1)
-        logger.debug(f"{user_name}: checking...")
+        logger.debug(f"Checking Recording Tasks... ({user_name})")
         if process.poll() is None:
-            logger.debug(f"{user_name}: Stream is Ongoing")
+            logger.debug(f"The broadcast is ongoing ({user_name})")
             if event.is_set():
-                logger.debug(f"{user_name}: Detect Abort Signal!")
-                logger.debug(f"{user_name}: Initialize ending process....")
+                logger.debug(f"Detect abort signals! ({user_name})")
+                logger.debug(f"Started interruption process.... ({user_name})")
                 process.communicate(str.encode("q"))
                 sleep(3)
                 process.terminate()
-                logger.debug(f"{user_name}: FFmpeg shutdown complete")
+                logger.debug(f"FFmpeg shutdown has been completed ({user_name})")
                 return
         else:
-            logger.debug(f"{user_name}: Stream is Closed")
+            logger.debug(f"The broadcast has ended ({user_name})")
             event.set()
+            logger.debug(f"Final processing has been initiated ({user_name})")
             sleep(3)
             process.terminate()
+            logger.debug(f"FFmpeg shutdown has been completed ({user_name})")
             return
