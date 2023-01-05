@@ -24,18 +24,18 @@ def download(event, url, user_name):
         if process.poll() is None:
             logger.debug(f"The broadcast is ongoing ({user_name})")
             if event.is_set():
-                logger.debug(f"Detect abort signals! ({user_name})")
-                logger.debug(f"Started interruption process.... ({user_name})")
+                logger.info(f"Detect abort signals! ({user_name})")
+                logger.info(f"Started interruption process.... ({user_name})")
                 process.communicate(str.encode("q"))
                 sleep(3)
                 process.terminate()
-                logger.debug(f"FFmpeg shutdown has been completed ({user_name})")
+                logger.info(f"FFmpeg shutdown has been completed ({user_name})")
                 return
         else:
-            logger.debug(f"The broadcast has ended ({user_name})")
+            logger.info(f"The broadcast has ended ({user_name})")
             event.set()
-            logger.debug(f"Final processing has been initiated ({user_name})")
+            logger.info(f"Final processing has been initiated ({user_name})")
             sleep(3)
             process.terminate()
-            logger.debug(f"FFmpeg shutdown has been completed ({user_name})")
+            logger.info(f"FFmpeg shutdown has been completed ({user_name})")
             return
