@@ -1,3 +1,5 @@
+import os
+import pathlib
 from concurrent.futures import ProcessPoolExecutor
 
 import uvicorn
@@ -12,6 +14,7 @@ def start_websocket_client():
     pass
 
 def main():
+    os.chdir(os.path.dirname(pathlib.Path(__file__).parent.resolve()))
     utils.create_output_directory()
     with ProcessPoolExecutor() as executor:
         executor.submit(start_api_server)
