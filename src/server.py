@@ -2,9 +2,11 @@ from fastapi import FastAPI
 
 from src.metadata import MetadataManager
 from stream import StreamManager
+from twitcasting import Twitcasting
 
 stream_manager = StreamManager()
 metadata_manager = MetadataManager()
+twitcasting = Twitcasting()
 app = FastAPI()
 
 
@@ -43,3 +45,11 @@ async def stop_record(user_name: str):
         return {"user": user_name}
     else:
         return {"error": "record could not stop"}
+
+@app.get("/subscriptions")
+async def get_subscriptions():
+    response = twitcasting.get_subscriptions()
+    if response[0]:
+        return response[1]
+    else:
+        return {"error": response[1]["error"]["message"]}
