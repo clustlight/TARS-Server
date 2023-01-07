@@ -36,7 +36,7 @@ async def start_record(user_name: str):
         if user_data_response[1]["user"]["is_live"]:
             live_id = user_data_response[1]["user"]["last_movie_id"]
 
-            live_title = "titile"
+            live_title = "title"
             live_subtitle = "subtitle"
             live_start_time = 0
 
