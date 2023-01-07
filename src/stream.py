@@ -1,7 +1,8 @@
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
 
-from download import download
+from download import download, comments
+from utils import get_comment_stream_url
 
 
 class StreamManager:
@@ -20,7 +21,10 @@ class StreamManager:
 
         if self.events[user_name].is_set():
             self.events[user_name].clear()
+            websocket_url = get_comment_stream_url(live_id)
+
             self.executor.submit(download, self.events[user_name], url, user_name, live_id, live_title, live_subtitle)
+            self.executor.submit(comments, self.events[user_name], websocket_url, user_name, live_id, live_title, live_subtitle)
             return True
         else:
             return False

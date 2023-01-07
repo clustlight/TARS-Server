@@ -1,6 +1,10 @@
+import asyncio
+import json
 import logging
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
+
+import websockets.client
 
 import utils
 
@@ -40,3 +44,25 @@ def download(event, url, user_name, live_id, live_title, live_subtitle):
             process.terminate()
             logger.info(f"FFmpeg shutdown has been completed ({user_name})")
             return
+
+def comments(event, url, user_name, live_id, live_title, live_subtitle):
+    asyncio.run(stream_comments(event, url, user_name, live_id, live_title, live_subtitle))
+
+
+async def stream_comments(event, url, user_name, live_id, live_title, live_subtitle):
+    title = utils.get_archive_file_name(live_id, user_name, live_title, live_subtitle)
+    file = open(f"./outputs/{user_name}/{title}.json", "wt", encoding="utf-8")
+    async with websockets.client.connect(url) as websocket:
+        try:
+            async for data in websocket:
+                if event.is_set():
+                    file.close()
+                    logger.info(f"Comment stream has been closed ({user_name})")
+                    return
+                messages = json.loads(data)
+                for message in messages:
+                    file.write(f"{message}\n")
+                    print(message)
+        except websockets.ConnectionClosed:
+            file.close()
+            logger.info(f"Comment stream has been closed ({user_name})")
