@@ -1,7 +1,7 @@
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Manager
 
-from src.download import download
+from download import download
 
 
 class StreamManager:

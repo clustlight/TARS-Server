@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from src.metadata import MetadataManager
+from metadata import MetadataManager
 from stream import StreamManager
 from twitcasting import Twitcasting
 
