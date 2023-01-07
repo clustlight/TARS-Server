@@ -6,11 +6,11 @@ import utils
 
 logger = logging.getLogger(__name__)
 
-def download(event, url, user_name):
+def download(event, url, user_name, live_id, live_title, live_subtitle):
     user_name = utils.replace_colon(user_name)
     utils.create_user_directory(user_name)
 
-    title = utils.get_archive_file_name("ID_INSERT_HERE", user_name)
+    title = utils.get_archive_file_name(live_id, user_name, live_title, live_subtitle)
     process = Popen(
         f"exec ffmpeg -i {url} -movflags faststart -c copy -bsf:a aac_adtstoasc ./outputs/{user_name}/{title}.mp4",
         shell=True,

@@ -13,6 +13,6 @@ def create_user_directory(user_name):
 def replace_colon(user_name):
     return user_name.replace(':', '_')
 
-def get_archive_file_name(movie_id, user_name):
+def get_archive_file_name(movie_id, user_name, live_title, live_subtitle):
     now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
-    return f"[{now}]-[{user_name}]-[{movie_id}]"
+    return f"[{now}]-[{live_title}__{live_subtitle}]-[{user_name}]-[{movie_id}]"
