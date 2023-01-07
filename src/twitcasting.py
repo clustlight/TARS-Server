@@ -37,7 +37,7 @@ class Twitcasting:
                 "liveend"
             ]
         }
-        response = requests.post('https://apiv2.twitcasting.tv/webhooks', headers=self.headers, params=payloads)
+        response = requests.post('https://apiv2.twitcasting.tv/webhooks', headers=self.headers, data=json.dumps(payloads))
         if response.status_code == 200:
             return True, response.json()
         else:
@@ -53,7 +53,7 @@ class Twitcasting:
                 "liveend"
             ]
         }
-        response = requests.delete('https://apiv2.twitcasting.tv/webhooks', headers=self.headers, params=payloads)
+        response = requests.delete('https://apiv2.twitcasting.tv/webhooks', headers=self.headers, data=json.dumps(payloads))
         if response.status_code == 200:
             return True, response.json()
         else:
