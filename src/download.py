@@ -61,7 +61,7 @@ async def stream_comments(event, url, user_name, live_id, live_title, live_subti
                     return
                 messages = json.loads(data)
                 for message in messages:
-                    file.write(f"{message}\n")
+                    file.write(rf"{message}" + "\n")
                     print(message)
         except websockets.ConnectionClosed:
             file.close()
