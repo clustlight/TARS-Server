@@ -2,8 +2,12 @@ class MetadataManager:
     def __init__(self):
         self.metadata = {}
 
-    def add(self, user_name: str, start_time: int):
-        self.metadata[user_name] = {"start_time": start_time}
+    def add(self, user_name: str, live_title: str, live_subtitle: str, start_time: int):
+        self.metadata[user_name] = {
+            "live_title": live_title,
+            "live_subtitle": live_subtitle,
+            "start_time": start_time
+        }
 
     def remove(self, user_name: str):
         self.metadata.pop(user_name)

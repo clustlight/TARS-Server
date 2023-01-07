@@ -24,7 +24,12 @@ async def get_records():
     response = []
     for index, user_name in enumerate(active_users):
         user_data = metadata_manager.get(user_name)
-        record = {"user_name": user_name, "start_time": user_data["start_time"]}
+        record = {
+            "user_name": user_name,
+            "live_title": user_data["live_title"],
+            "live_subtitle": user_data["live_subtitle"],
+            "start_time": user_data["start_time"]
+        }
         response.append(record)
 
     return {"records": response}
@@ -48,8 +53,12 @@ async def start_record(user_name: str):
                 live_start_time = live_data_response[1]["movie"]["created"]
 
             if stream_manager.start(user_name, live_id, live_title, live_subtitle):
-                metadata_manager.add(user_name, live_start_time)
-                return {"user": user_name}
+                metadata_manager.add(user_name, live_title, live_subtitle, live_start_time)
+                return {
+                    "user": user_name,
+                    "live_title": live_title,
+                    "live_subtitle": live_subtitle
+                }
             else:
                 return {"error": "recording is on going..."}
         else:
