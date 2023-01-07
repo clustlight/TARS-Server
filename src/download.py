@@ -51,7 +51,7 @@ def comments(event, url, user_name, live_id, live_title, live_subtitle):
 
 async def stream_comments(event, url, user_name, live_id, live_title, live_subtitle):
     title = utils.get_archive_file_name(live_id, user_name, live_title, live_subtitle)
-    file = open(f"./outputs/{user_name}/{title}.json", "wt", encoding="utf-8")
+    file = open(f"./outputs/{user_name}/{title}.json", "x", encoding="utf-8")
     async with websockets.client.connect(url) as websocket:
         try:
             async for data in websocket:
@@ -62,7 +62,6 @@ async def stream_comments(event, url, user_name, live_id, live_title, live_subti
                 messages = json.loads(data)
                 for message in messages:
                     file.write(rf"{message}" + "\n")
-                    print(message)
         except websockets.ConnectionClosed:
             file.close()
             logger.info(f"Comment stream has been closed ({user_name})")
