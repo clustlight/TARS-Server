@@ -31,11 +31,18 @@ async def get_records():
 
 @app.post("/records/{user_name}")
 async def start_record(user_name: str):
-    if stream_manager.start(user_name):
-        metadata_manager.add(user_name, 0)
-        return {"user": user_name}
+    response  = twitcasting.get_user_info(user_name)
+    if response[0]:
+        if response[1]["user"]["is_live"]:
+            if stream_manager.start(user_name):
+                metadata_manager.add(user_name, 0)
+                return {"user": user_name}
+            else:
+                return {"error": "recording is on going..."}
+        else:
+            return {"error": "User is offline"}
     else:
-        return {"error": "recording is on going..."}
+        return {"error": response[1]["error"]["message"]}
 
 
 @app.delete("/records/{user_name}")
