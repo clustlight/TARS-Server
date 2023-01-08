@@ -39,7 +39,7 @@ class Twitcasting:
             ]
         }
         response = requests.post('https://apiv2.twitcasting.tv/webhooks', headers=self.headers, data=json.dumps(payloads))
-        if response.status_code == 200:
+        if response.status_code == 200 or response.status_code == 201:
             return True, response.json()
         else:
             logger.error(f"API Error: ({response.status_code}) {response.json()['error']['message']}")
