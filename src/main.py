@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import pathlib
@@ -8,13 +9,15 @@ import uvicorn
 
 from server import app
 import utils
+from src.download import stream_notification
+
 
 def start_api_server():
     port = int(os.environ.get("PORT"))
     uvicorn.run(app, host='0.0.0.0', port=port, log_level='info')
 
 def start_websocket_client():
-    pass
+    asyncio.run(stream_notification(os.environ.get("NOTIFICATION_SERVER_URL")))
 
 def main():
     dotenv.load_dotenv()
