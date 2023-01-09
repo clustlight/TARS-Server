@@ -5,20 +5,12 @@ ___
 ## Getting Started
 
 ### System Requirements
-- Ubuntu
-- FFmpeg
+- Docker Engine
 
-### Install FFmpeg
-```shell
-$ sudo apt install ffmpeg -y
-```
-### Install Dependencies
-```shell
-$ python -m pip install -r requirements.txt
-```
+### Set environment variable
+Rename `.env.sample` to `.env` and fill in the required information
 
 ### Run Server
 ```shell
-$ python src/main.py
+$ docker-compose up
 ```
-
