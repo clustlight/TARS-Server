@@ -3,6 +3,7 @@ import os
 
 import requests
 
+user_agent = os.environ.get("USER_AGENT")
 
 def create_output_directory():
     if not os.path.exists("../outputs"):
@@ -20,7 +21,10 @@ def get_archive_file_name(movie_id, user_name, live_title, live_subtitle):
     return f"[{now}]-[{live_title}__{live_subtitle}]-[{user_name}]-[{movie_id}]"
 
 def get_comment_stream_url(live_id):
+    headers= {
+        "User-Agent": user_agent
+    }
     data = {"movie_id": live_id}
     files = {(None, None)}
-    response = requests.post("https://twitcasting.tv/eventpubsuburl.php", data=data, files=files)
+    response = requests.post("https://twitcasting.tv/eventpubsuburl.php", headers=headers, data=data, files=files)
     return response.json()["url"]
