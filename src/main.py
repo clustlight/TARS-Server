@@ -9,7 +9,7 @@ import uvicorn
 
 from server import app
 import utils
-from src.download import stream_notification
+from download import stream_notification
 
 
 def start_api_server():

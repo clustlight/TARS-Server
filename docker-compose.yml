@@ -1,0 +1,14 @@
+version: "3"
+services:
+  tars:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./outputs/:/app/outputs
+    ports:
+      - 3880:80
+    environment:
+      TZ: Asia/Tokyo
+    env_file:
+      - .env
