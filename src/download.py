@@ -74,7 +74,7 @@ async def stream_comments(event, url, user_name, live_id, live_title, live_subti
             logger.info(f"Comment stream has been closed ({user_name})")
 
 async def stream_notification(url):
-    async for websocket in websockets.client.connect(url):
+    async for websocket in websockets.client.connect(url, extra_headers={"notification-server-access-token": token}):
         logger.info("Connected to Notification Server")
         try:
             async for data in websocket:
