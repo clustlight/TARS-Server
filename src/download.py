@@ -5,6 +5,7 @@ import os
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
 
+import requests
 import websockets.client
 
 import utils
@@ -77,7 +78,22 @@ async def stream_notification(url):
         try:
             async for data in websocket:
                 message = json.loads(data)
-                logger.info(message)
-        except websockets.ConnectionClosed:
-            logger.info("stream closed")
-            continue
+                user_name = message['broadcaster']['screen_id']
+                if message["event"] == "livestart":
+                    logger.info(f"Received LIVE START Notification ({user_name})")
+                    requests.post(f"http://localhost:{port}/records/{user_name}")
+                elif message["event"] == "liveend":
+                    logger.info(f"Received LIVE END Notification ({user_name})")
+        except websockets.ConnectionClosed as exception:
+            close_code = exception.rcvd.code
+            if close_code == 1011:
+                logger.error("Websocket Authentication Failed")
+                logger.warning("Auto Recording has been DISABLED!")
+                logger.warning("If you want to use the automatic recording function, "
+                               "please make sure that the notification server is working properly "
+                               "and that the connection destination and token settings are correct "
+                               "before restarting the system.")
+                return
+            else:
+                logger.info("Notification Stream has been closed")
+                continue
