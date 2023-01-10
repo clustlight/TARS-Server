@@ -1,6 +1,6 @@
 version: "3"
 services:
-  tars:
+  tars-server:
     build:
       context: .
       dockerfile: Dockerfile
