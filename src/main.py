@@ -21,7 +21,7 @@ def start_websocket_client():
 
 def main():
     dotenv.load_dotenv()
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s  [%(levelname)s] (%(name)s) >> %(message)s')
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s  [%(levelname)s] (%(name)s) >> %(message)s')
 
     os.chdir(os.path.dirname(pathlib.Path(__file__).parent.resolve()))
     utils.create_output_directory()
