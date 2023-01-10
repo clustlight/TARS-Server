@@ -17,7 +17,9 @@ user_agent = os.environ.get("USER_AGENT")
 token = os.environ.get("NOTIFICATION_SERVER_TOKEN")
 
 def download(event, url, user_name, live_id, live_title, live_subtitle):
-    user_name = utils.replace_colon(user_name)
+    user_name = utils.escape_characters(user_name)
+    live_title = utils.escape_characters(live_title)
+    live_subtitle = utils.escape_characters(live_subtitle)
     utils.create_user_directory(user_name)
 
     title = utils.get_archive_file_name(live_id, user_name, live_title, live_subtitle)
@@ -56,6 +58,9 @@ def comments(event, url, user_name, live_id, live_title, live_subtitle):
 
 
 async def stream_comments(event, url, user_name, live_id, live_title, live_subtitle):
+    user_name = utils.escape_characters(user_name)
+    live_title = utils.escape_characters(live_title)
+    live_subtitle = utils.escape_characters(live_subtitle)
     title = utils.get_archive_file_name(live_id, user_name, live_title, live_subtitle)
     file = open(f"./outputs/{user_name}/{title}.json", "x", encoding="utf-8")
     async with websockets.client.connect(url, user_agent_header=user_agent) as websocket:
