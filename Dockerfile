@@ -6,8 +6,6 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y ffmpeg
 
 RUN mkdir src/
 
-COPY ./src/* /app/src/
-
 COPY requirements.txt /app/
 
 RUN pip install --upgrade pip

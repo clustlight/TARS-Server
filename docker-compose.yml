@@ -6,6 +6,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
+      - ./src/:/app/src
       - ./outputs/:/app/outputs
     ports:
       - ${PORT}:${PORT}
