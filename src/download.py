@@ -79,7 +79,13 @@ async def stream_comments(event, url, user_name, live_id, live_title, live_subti
             logger.info(f"Comment stream has been closed ({user_name})")
 
 async def stream_notification(url):
-    async for websocket in websockets.client.connect(url, extra_headers={"notification-server-access-token": token}):
+    async for websocket in websockets.client.connect(
+            url,
+            ping_interval=5,
+            ping_timeout=7,
+            close_timeout=3,
+            extra_headers={"notification-server-access-token": token}
+    ):
         logger.info("Connected to Notification Server")
         try:
             async for data in websocket:
@@ -90,16 +96,5 @@ async def stream_notification(url):
                     requests.post(f"http://localhost:{port}/records/{user_name}")
                 elif message["event"] == "liveend":
                     logger.info(f"Received LIVE END Notification ({user_name})")
-        except websockets.ConnectionClosed as exception:
-            close_code = exception.rcvd.code
-            if close_code == 1011:
-                logger.error("Websocket Authentication Failed")
-                logger.warning("Auto Recording has been DISABLED!")
-                logger.warning("If you want to use the automatic recording function, "
-                               "please make sure that the notification server is working properly "
-                               "and that the connection destination and token settings are correct "
-                               "before restarting the system.")
-                return
-            else:
-                logger.info("Notification Stream has been closed")
-                continue
+        except websockets.ConnectionClosed:
+            continue
