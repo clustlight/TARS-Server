@@ -24,7 +24,7 @@ def download(event, url, user_name, live_id, live_title, live_subtitle):
 
     title = utils.get_archive_file_name(live_id, user_name, live_title, live_subtitle)
     process = Popen(
-        f"exec ffmpeg -i {url} -movflags faststart -user_agent '{user_agent}' -c copy -bsf:a aac_adtstoasc ./outputs/{user_name}/{title}.mp4",
+        f"exec ffmpeg -i {url} -movflags faststart -user_agent '{user_agent}' -c copy -bsf:a aac_adtstoasc './outputs/{user_name}/{title}.mp4'",
         shell=True,
         stdin=PIPE,
         stderr=DEVNULL
