@@ -17,7 +17,7 @@ Rename `.env.sample` to `.env` and fill in the required information
 | NOTIFICATION_SERVER_URL   | TARS-Outpost URL   (Websocket) |
 | NOTIFICATION_SERVER_TOKEN | TARS-Outpost Server Token      |
 | CLIENT_ID                 | Twitcasting App Client ID      |
-| CLIENT_SECRET             | Twitcasting App Client         |
+| CLIENT_SECRET             | Twitcasting App Client Secret  |
 
 ### Run Server
 ```shell
