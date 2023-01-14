@@ -3,13 +3,21 @@
 ___
 
 ## Getting Started
-
+__[TARS-Outpost](https://github.com/quadseed/TARS-Outpost) is required to use the automatic recording function__
 ### System Requirements
 - Docker Engine
-- [TARS-Outpost](https://github.com/quadseed/TARS-Outpost) (for Auto Recording Hook)
 
 ### Set environment variable
 Rename `.env.sample` to `.env` and fill in the required information
+
+| Parameter                 | Description                    |
+|---------------------------|--------------------------------|
+| PORT                      | Web API Server listen port     |
+| USER_AGENT                | Web request user agent         |
+| NOTIFICATION_SERVER_URL   | TARS-Outpost URL   (Websocket) |
+| NOTIFICATION_SERVER_TOKEN | TARS-Outpost Server Token      |
+| CLIENT_ID                 | Twitcasting App Client ID      |
+| CLIENT_SECRET             | Twitcasting App Client         |
 
 ### Run Server
 ```shell
