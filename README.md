@@ -3,7 +3,7 @@
 ___
 
 ## Getting Started
-__[TARS-Outpost](https://github.com/quadseed/TARS-Outpost) is required to use the automatic recording function__
+__[TARS-Outpost](https://github.com/quadseed/TARS-Outpost) is required to use the automatic recording feature__
 ### System Requirements
 - Docker Engine
 
