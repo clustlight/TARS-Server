@@ -93,7 +93,7 @@ async def stream_notification(url):
                 user_name = message['broadcaster']['screen_id']
                 if message["event"] == "livestart":
                     logger.info(f"Received LIVE START Notification ({user_name})")
-                    requests.post(f"http://localhost:{port}/records/{user_name}")
+                    requests.post(f"http://localhost:{port}/recordings/{user_name}")
                 elif message["event"] == "liveend":
                     logger.info(f"Received LIVE END Notification ({user_name})")
         except websockets.ConnectionClosed:

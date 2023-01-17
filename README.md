@@ -26,15 +26,15 @@ $ docker-compose up
 
 ## API Reference
 ### Recordings
-- GET `/records`  
+- GET `/recordings`  
 Get information on ongoing recordings
 
 
-- POST `/records/<user_name>`  
+- POST `/recordings/<user_name>`  
 Start recording for the specified user
 
 
-- DELETE `/records/<user_name>`  
+- DELETE `/recordings/<user_name>`  
 Stop recording for the specified user
 
 

@@ -14,7 +14,7 @@ app = FastAPI()
 async def root():
     return {"message": "OK"}
 
-@app.get("/records")
+@app.get("/recordings")
 async def get_records():
     record_flags = stream_manager.events
     active_users = [key for key, value in record_flags.items() if not value.is_set()]
@@ -32,9 +32,9 @@ async def get_records():
         }
         response.append(record)
 
-    return {"records": response}
+    return {"recordings": response}
 
-@app.post("/records/{user_name}")
+@app.post("/recordings/{user_name}")
 async def start_record(user_name: str):
     user_data_response  = twitcasting.get_user_info(user_name)
     if user_data_response[0]:
@@ -67,7 +67,7 @@ async def start_record(user_name: str):
         return {"error": user_data_response[1]["error"]["message"]}
 
 
-@app.delete("/records/{user_name}")
+@app.delete("/recordings/{user_name}")
 async def stop_record(user_name: str):
     if stream_manager.stop(user_name):
         metadata_manager.remove(user_name)
