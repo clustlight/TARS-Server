@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status, Response
 
 from metadata import MetadataManager
 from stream import StreamManager
@@ -10,11 +10,11 @@ twitcasting = Twitcasting()
 app = FastAPI()
 
 
-@app.get("/")
+@app.get("/", status_code=status.HTTP_200_OK)
 async def root():
     return {"message": "OK"}
 
-@app.get("/recordings")
+@app.get("/recordings", status_code=status.HTTP_200_OK)
 async def get_records():
     record_flags = stream_manager.events
     active_users = [key for key, value in record_flags.items() if not value.is_set()]
@@ -34,8 +34,8 @@ async def get_records():
 
     return {"recordings": response}
 
-@app.post("/recordings/{user_name}")
-async def start_record(user_name: str):
+@app.post("/recordings/{user_name}", status_code=status.HTTP_200_OK)
+async def start_recording(user_name: str, response: Response):
     user_data_response  = twitcasting.get_user_info(user_name)
     if user_data_response[0]:
         if user_data_response[1]["user"]["is_live"]:
@@ -60,49 +60,57 @@ async def start_record(user_name: str):
                     "live_subtitle": live_subtitle
                 }
             else:
+                response.status_code = status.HTTP_409_CONFLICT
                 return {"error": "recording is on going..."}
         else:
+            response.status_code = status.HTTP_404_NOT_FOUND
             return {"error": "User is offline"}
     else:
         return {"error": user_data_response[1]["error"]["message"]}
 
 
-@app.delete("/recordings/{user_name}")
-async def stop_record(user_name: str):
+@app.delete("/recordings/{user_name}", status_code=status.HTTP_200_OK)
+async def stop_recording(user_name: str, response: Response):
     if stream_manager.stop(user_name):
         metadata_manager.remove(user_name)
         return {"user": user_name}
     else:
-        return {"error": "record could not stop"}
+        response.status_code = status.HTTP_404_NOT_FOUND
+        return {"error": "recording not found"}
 
-@app.get("/subscriptions")
-async def get_subscriptions():
-    response = twitcasting.get_subscriptions()
-    if response[0]:
-        return response[1]
+@app.get("/subscriptions", status_code=status.HTTP_200_OK)
+async def get_subscriptions(response: Response):
+    api_response = twitcasting.get_subscriptions()
+    if api_response[0]:
+        return api_response[1]
     else:
-        return {"error": response[1]["error"]["message"]}
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": api_response[1]["error"]["message"]}
 
-@app.post("/subscriptions/{user_name}")
-async def add_subscription(user_name: str):
+@app.post("/subscriptions/{user_name}", status_code=status.HTTP_200_OK)
+async def add_subscription(user_name: str, response: Response):
     user_data_response = twitcasting.get_user_info(user_name)
     if user_data_response[0]:
         subscription_response = twitcasting.add_subscription(user_data_response[1]["user"]["id"])
         if subscription_response[0]:
             return subscription_response[1]
         else:
+            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return {"error": subscription_response[1]["error"]["message"]}
     else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": user_data_response[1]["error"]["message"]}
 
-@app.delete("/subscriptions/{user_name}")
-async def remove_subscription(user_name: str):
+@app.delete("/subscriptions/{user_name}", status_code=status.HTTP_200_OK)
+async def remove_subscription(user_name: str, response: Response):
     user_data_response = twitcasting.get_user_info(user_name)
     if user_data_response[0]:
         subscription_response = twitcasting.remove_subscription(user_data_response[1]["user"]["id"])
         if subscription_response[0]:
             return subscription_response[1]
         else:
+            response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return {"error": subscription_response[1]["error"]["message"]}
     else:
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": user_data_response[1]["error"]["message"]}
