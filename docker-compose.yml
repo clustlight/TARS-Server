@@ -3,7 +3,7 @@ services:
   tars-server:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.development
     restart: unless-stopped
     volumes:
       - ./src/:/app/src
