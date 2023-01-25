@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Generate docker image metadata
-      - uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v4
         id: metadata
         with:
           images: ghcr.io/quadseed/tars-server
@@ -30,7 +30,8 @@ jobs:
           username: quadseed
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: docker/build-push-action@v3
+      - name: Build and push docker image
+        uses: docker/build-push-action@v3
         with:
           context: .
           push: true
