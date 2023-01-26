@@ -1,5 +1,6 @@
 # TARS-Server
 ### Twitcasting Autonomous Recording System [Server]
+[![Build Docker Image](https://github.com/quadseed/TARS-Server/actions/workflows/build.yml/badge.svg)](https://github.com/quadseed/TARS-Server/actions/workflows/build.yml)
 ___
 
 ## Getting Started
@@ -18,6 +19,23 @@ Rename `.env.sample` to `.env` and fill in the required information
 | NOTIFICATION_SERVER_TOKEN | TARS-Outpost Server Token      |
 | CLIENT_ID                 | Twitcasting App Client ID      |
 | CLIENT_SECRET             | Twitcasting App Client Secret  |
+
+### Make `docker-compose.yml`
+```yaml
+version: "3"
+services:
+  tars-server:
+    image: ghcr.io/quadseed/tars-server:latest
+    restart: unless-stopped
+    volumes:
+      - ./outputs/:/app/outputs
+    ports:
+      - ${PORT}:${PORT}
+    environment:
+      TZ: Asia/Tokyo
+    env_file:
+      - .env
+```
 
 ### Run Server
 ```shell
