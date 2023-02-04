@@ -14,17 +14,18 @@ class StreamManager:
     def start(self, user_name, live_id, live_title, live_subtitle):
         url = f"https://twitcasting.tv/{user_name}/metastream.m3u8?mode=source"
 
-        if user_name not in self.events:
+        if live_id not in self.events:
             event = self.manager.Event()
             event.set()
-            self.events[user_name] = event
+            self.events[live_id] = event
 
-        if self.events[user_name].is_set():
-            self.events[user_name].clear()
+        if self.events[live_id].is_set():
+            self.events[live_id].clear()
             websocket_url = get_comment_stream_url(live_id)
+            print(f"comm url: :{websocket_url}")
 
-            self.executor.submit(download, self.events[user_name], url, user_name, live_id, live_title, live_subtitle)
-            self.executor.submit(comments, self.events[user_name], websocket_url, user_name, live_id, live_title, live_subtitle)
+            self.executor.submit(download, self.events[live_id], url, user_name, live_id, live_title, live_subtitle)
+            self.executor.submit(comments, self.events[live_id], websocket_url, user_name, live_id, live_title, live_subtitle)
             return True
         else:
             return False

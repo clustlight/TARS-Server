@@ -17,15 +17,16 @@ async def root():
 @app.get("/recordings", status_code=status.HTTP_200_OK)
 async def get_records():
     record_flags = stream_manager.events
-    active_users = [key for key, value in record_flags.items() if not value.is_set()]
-    non_active_users = [key for key, value in record_flags.items() if value.is_set()]
-    metadata_manager.update(non_active_users)
+    active_streams = [key for key, value in record_flags.items() if not value.is_set()]
+    non_active_streams = [key for key, value in record_flags.items() if value.is_set()]
+    metadata_manager.update(non_active_streams)
 
     response = []
-    for index, user_name in enumerate(active_users):
-        user_data = metadata_manager.get(user_name)
+    for index, live_id in enumerate(active_streams):
+        user_data = metadata_manager.get(live_id)
         record = {
-            "user_name": user_name,
+            "live_id": live_id,
+            "user_name": user_data["user_name"],
             "live_title": user_data["live_title"],
             "live_subtitle": user_data["live_subtitle"],
             "start_time": user_data["start_time"]
@@ -36,7 +37,7 @@ async def get_records():
 
 @app.post("/recordings/{user_name}", status_code=status.HTTP_200_OK)
 async def start_recording(user_name: str, response: Response):
-    user_data_response  = twitcasting.get_user_info(user_name)
+    user_data_response = twitcasting.get_user_info(user_name)
     if user_data_response[0]:
         if user_data_response[1]["user"]["is_live"]:
             live_id = user_data_response[1]["user"]["last_movie_id"]
@@ -53,8 +54,9 @@ async def start_recording(user_name: str, response: Response):
                 live_start_time = live_data_response[1]["movie"]["created"]
 
             if stream_manager.start(user_name, live_id, live_title, live_subtitle):
-                metadata_manager.add(user_name, live_title, live_subtitle, live_start_time)
+                metadata_manager.add(user_name, live_id, live_title, live_subtitle, live_start_time)
                 return {
+                    "live_id": live_id,
                     "user": user_name,
                     "live_title": live_title,
                     "live_subtitle": live_subtitle
@@ -71,12 +73,23 @@ async def start_recording(user_name: str, response: Response):
 
 @app.delete("/recordings/{user_name}", status_code=status.HTTP_200_OK)
 async def stop_recording(user_name: str, response: Response):
-    if stream_manager.stop(user_name):
-        metadata_manager.remove(user_name)
-        return {"user": user_name}
+    user_data_response = twitcasting.get_user_info(user_name)
+    if user_data_response[0]:
+        if user_data_response[1]["user"]["is_live"]:
+            live_id = user_data_response[1]["user"]["last_movie_id"]
+
+            if stream_manager.stop(live_id):
+                metadata_manager.remove(live_id)
+                return {"user": user_name}
+            else:
+                response.status_code = status.HTTP_404_NOT_FOUND
+                return {"error": "recording not found"}
+        else:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {"error": "User is offline"}
     else:
-        response.status_code = status.HTTP_404_NOT_FOUND
-        return {"error": "recording not found"}
+        return {"error": user_data_response[1]["error"]["message"]}
+
 
 @app.get("/subscriptions", status_code=status.HTTP_200_OK)
 async def get_subscriptions(response: Response):
