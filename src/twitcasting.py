@@ -9,6 +9,7 @@ import requests
 dotenv.load_dotenv()
 logger = logging.getLogger(__name__)
 
+
 class Twitcasting:
     def __init__(self):
         self.client_id = os.environ.get("CLIENT_ID")
@@ -44,7 +45,6 @@ class Twitcasting:
         else:
             logger.error(f"API Error: ({response.status_code}) {response.json()['error']['message']}")
             return False, response.json()
-
 
     def remove_subscription(self, user_id: str) -> (bool, dict):
         response = requests.delete(f'https://apiv2.twitcasting.tv/webhooks?user_id={user_id}&events[]=livestart&events[]=liveend', headers=self.headers)

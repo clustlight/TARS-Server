@@ -14,6 +14,7 @@ app = FastAPI()
 async def root():
     return {"message": "OK"}
 
+
 @app.get("/recordings", status_code=status.HTTP_200_OK)
 async def get_records():
     record_flags = stream_manager.events
@@ -34,6 +35,7 @@ async def get_records():
         response.append(record)
 
     return {"recordings": response}
+
 
 @app.post("/recordings/{user_name}", status_code=status.HTTP_200_OK)
 async def start_recording(user_name: str, response: Response):
@@ -100,6 +102,7 @@ async def get_subscriptions(response: Response):
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": api_response[1]["error"]["message"]}
 
+
 @app.post("/subscriptions/{user_name}", status_code=status.HTTP_200_OK)
 async def add_subscription(user_name: str, response: Response):
     user_data_response = twitcasting.get_user_info(user_name)
@@ -113,6 +116,7 @@ async def add_subscription(user_name: str, response: Response):
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": user_data_response[1]["error"]["message"]}
+
 
 @app.delete("/subscriptions/{user_name}", status_code=status.HTTP_200_OK)
 async def remove_subscription(user_name: str, response: Response):

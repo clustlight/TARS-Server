@@ -22,7 +22,6 @@ class StreamManager:
         if self.events[live_id].is_set():
             self.events[live_id].clear()
             websocket_url = get_comment_stream_url(live_id)
-            print(f"comm url: :{websocket_url}")
 
             self.executor.submit(download, self.events[live_id], url, user_name, live_id, live_title, live_subtitle)
             self.executor.submit(comments, self.events[live_id], websocket_url, user_name, live_id, live_title, live_subtitle)

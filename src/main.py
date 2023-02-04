@@ -16,8 +16,10 @@ def start_api_server():
     port = int(os.environ.get("PORT"))
     uvicorn.run(app, host='0.0.0.0', port=port, log_level='info')
 
+
 def start_websocket_client():
     asyncio.run(stream_notification(os.environ.get("NOTIFICATION_SERVER_URL")))
+
 
 def main():
     dotenv.load_dotenv()
