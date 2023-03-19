@@ -24,8 +24,10 @@ def download(event, url, user_name, live_id, live_title, live_subtitle):
     utils.create_user_directory(user_name)
 
     title = utils.get_archive_file_name(live_id, user_name, live_title, live_subtitle)
+    utils.create_segment_directory(user_name, live_id)
+
     process = Popen(
-        f"exec ffmpeg -i {url} -movflags faststart -user_agent '{user_agent}' -c copy -bsf:a aac_adtstoasc './outputs/{user_name}/{title}.mp4'",
+        f"exec ffmpeg -i {url} -user_agent '{user_agent}' -c copy -f segment -segment_list_flags +live './outputs/{user_name}/{live_id}/%05d.ts'",
         shell=True,
         stdin=PIPE,
         stderr=DEVNULL
@@ -41,18 +43,35 @@ def download(event, url, user_name, live_id, live_title, live_subtitle):
                 logger.info(f"Detect abort signals! ({user_name})")
                 logger.info(f"Started interruption process.... ({user_name})")
                 process.communicate(str.encode("q"))
-                sleep(3)
+                sleep(2)
                 process.terminate()
+                final_process = concatenate_segments(user_name, live_id, title)
+                final_process.wait()
+                utils.delete_segment_directory(user_name, live_id)
                 logger.info(f"FFmpeg shutdown has been completed ({user_name})")
                 return
         else:
             logger.info(f"The broadcast has ended ({user_name})")
             event.set()
             logger.info(f"Final processing has been initiated ({user_name})")
-            sleep(3)
+            sleep(2)
             process.terminate()
+            final_process = concatenate_segments(user_name, live_id, title)
+            final_process.wait()
+            utils.delete_segment_directory(user_name, live_id)
             logger.info(f"FFmpeg shutdown has been completed ({user_name})")
             return
+
+
+def concatenate_segments(user_name, live_id, title):
+    utils.create_segment_index(user_name, live_id)
+    process = Popen(
+        f"exec ffmpeg -f concat -i './outputs/{user_name}/{live_id}/index.txt' -c copy -movflags faststart './outputs/{user_name}/{title}.mp4'",
+        shell=True,
+        stdin=PIPE,
+        stderr=DEVNULL
+    )
+    return process
 
 
 def comments(event, url, user_name, live_id, live_title, live_subtitle):

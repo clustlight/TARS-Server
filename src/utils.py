@@ -3,6 +3,8 @@ import os
 import re
 
 import requests
+import pathlib
+import shutil
 
 user_agent = os.environ.get("USER_AGENT")
 
@@ -15,6 +17,25 @@ def create_output_directory():
 def create_user_directory(user_name):
     if not os.path.exists(f"./outputs/{user_name}"):
         os.mkdir(f"./outputs/{user_name}")
+
+
+def create_segment_directory(user_name, live_id):
+    if not os.path.exists(f"./outputs/{user_name}/{live_id}"):
+        os.mkdir(f"./outputs/{user_name}/{live_id}")
+
+
+def delete_segment_directory(user_name, live_id):
+    if os.path.exists(f"./outputs/{user_name}/{live_id}"):
+        shutil.rmtree(f"./outputs/{user_name}/{live_id}")
+
+
+def create_segment_index(user_name, live_id):
+    path = pathlib.Path(f"./outputs/{user_name}/{live_id}")
+    with open(f"./outputs/{user_name}/{live_id}/index.txt", 'w') as f:
+        for index, item in enumerate(path.glob("*.ts")):
+            if index == 0:
+                continue
+            f.write(f"file {item.name}\n")
 
 
 def escape_characters(text):
