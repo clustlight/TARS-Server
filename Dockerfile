@@ -1,4 +1,4 @@
-FROM python:3.11.2-slim-bullseye AS builder
+FROM python:3.11.2-alpine AS builder
 
 COPY requirements.txt /
 
@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt
 
 FROM jrottenberg/ffmpeg:4.1-scratch AS ffmpeg
 
-FROM python:3.11.2-slim-bullseye
+FROM python:3.11.2-alpine
 
 ENV LD_LIBRARY_PATH=/usr/local/lib
 COPY --from=ffmpeg / /
@@ -23,11 +23,5 @@ WORKDIR app/
 RUN mkdir src/
 
 COPY ./src/* /app/src/
-
-COPY requirements.txt /app/
-
-RUN pip install --upgrade pip
-RUN pip install --upgrade setuptools
-RUN pip install -r requirements.txt
 
 CMD ["python", "src/main.py"]
