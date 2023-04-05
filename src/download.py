@@ -27,7 +27,7 @@ def download(event, url, user_name, live_id, live_title, live_subtitle):
     utils.create_segment_directory(user_name, live_id)
 
     process = Popen(
-        f"exec ffmpeg -i {url} -user_agent '{user_agent}' -c copy -f segment -segment_list_flags +live './outputs/{user_name}/{live_id}/%05d.ts'",
+        f"exec ffmpeg -i {url} -user_agent '{user_agent}' -http_persistent 0 -c copy -f segment -segment_list_flags +live './outputs/{user_name}/{live_id}/%05d.ts'",
         shell=True,
         stdin=PIPE,
         stderr=DEVNULL
