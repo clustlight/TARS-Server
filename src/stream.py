@@ -7,7 +7,7 @@ from utils import get_comment_stream_url
 
 class StreamManager:
     def __init__(self):
-        self.executor = ProcessPoolExecutor()
+        self.executor = ProcessPoolExecutor(max_workers=256)
         self.events = {}
         self.manager = Manager()
 
