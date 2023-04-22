@@ -83,7 +83,7 @@ async def stream_comments(event, url, user_name, live_id, live_title, live_subti
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
     title = utils.get_archive_file_name(live_id, user_name, live_title, live_subtitle)
-    file = open(f"./outputs/{user_name}/{title}.json", "x", encoding="utf-8")
+    file = open(f"./outputs/{user_name}/{title}.json", "w", encoding="utf-8")
     async with websockets.client.connect(url, user_agent_header=user_agent) as websocket:
         logger.info(f"Comment stream started ({user_name})")
         try:
