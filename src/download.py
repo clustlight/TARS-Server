@@ -98,7 +98,7 @@ async def stream_comments(event, url, user_name, live_id, live_title, live_subti
                     file.write(rf"{text}" + "\n")
         except websockets.ConnectionClosed:
             file.close()
-            logger.info(f"Comment stream has been closed ({user_name})")
+            logger.info(f"Comment websocket connection has been closed ({user_name})")
 
 
 async def stream_notification(url):
