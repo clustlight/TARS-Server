@@ -53,8 +53,8 @@ class Twitcasting:
             logger.error(f"API Error: ({response.status_code}) {response.json()['error']['message']}")
             return False, response.json()
 
-    def get_user_info(self, user_id: str) -> (bool, dict):
-        response = requests.get(f"https://apiv2.twitcasting.tv/users/{user_id}", headers=self.headers)
+    def get_user_info(self, screen_id: str) -> (bool, dict):
+        response = requests.get(f"https://apiv2.twitcasting.tv/users/{screen_id}", headers=self.headers)
         if response.status_code == 200:
             return True, response.json()
         else:

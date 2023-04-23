@@ -11,8 +11,8 @@ class StreamManager:
         self.events = {}
         self.manager = Manager()
 
-    def start(self, user_name, live_id, live_title, live_subtitle):
-        url = f"https://twitcasting.tv/{user_name}/metastream.m3u8?mode=source"
+    def start(self, screen_id, live_id, live_title, live_subtitle):
+        url = f"https://twitcasting.tv/{screen_id}/metastream.m3u8?mode=source"
 
         if live_id not in self.events:
             event = self.manager.Event()
@@ -23,16 +23,16 @@ class StreamManager:
             self.events[live_id].clear()
             websocket_url = get_comment_stream_url(live_id)
 
-            self.executor.submit(download, self.events[live_id], url, user_name, live_id, live_title, live_subtitle)
-            self.executor.submit(comments, self.events[live_id], websocket_url, user_name, live_id, live_title, live_subtitle)
+            self.executor.submit(download, self.events[live_id], url, screen_id, live_id, live_title, live_subtitle)
+            self.executor.submit(comments, self.events[live_id], websocket_url, screen_id, live_id, live_title, live_subtitle)
             return True
         else:
             return False
 
-    def stop(self, user_name):
-        if user_name in self.events:
-            self.events[user_name].set()
-            self.events.pop(user_name)
+    def stop(self, screen_id):
+        if screen_id in self.events:
+            self.events[screen_id].set()
+            self.events.pop(screen_id)
             return True
         else:
             return False

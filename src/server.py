@@ -119,9 +119,9 @@ async def get_subscriptions(response: Response):
         return {"error": api_response[1]["error"]["message"]}
 
 
-@app.post("/subscriptions/{user_name}", status_code=status.HTTP_200_OK)
-async def add_subscription(user_name: str, response: Response):
-    user_data_response = twitcasting.get_user_info(user_name)
+@app.post("/subscriptions/{screen_id}", status_code=status.HTTP_200_OK)
+async def add_subscription(screen_id: str, response: Response):
+    user_data_response = twitcasting.get_user_info(screen_id)
     if user_data_response[0]:
         subscription_response = twitcasting.add_subscription(user_data_response[1]["user"]["id"])
         if subscription_response[0]:
@@ -134,9 +134,9 @@ async def add_subscription(user_name: str, response: Response):
         return {"error": user_data_response[1]["error"]["message"]}
 
 
-@app.delete("/subscriptions/{user_name}", status_code=status.HTTP_200_OK)
-async def remove_subscription(user_name: str, response: Response):
-    user_data_response = twitcasting.get_user_info(user_name)
+@app.delete("/subscriptions/{screen_id}", status_code=status.HTTP_200_OK)
+async def remove_subscription(screen_id: str, response: Response):
+    user_data_response = twitcasting.get_user_info(screen_id)
     if user_data_response[0]:
         subscription_response = twitcasting.remove_subscription(user_data_response[1]["user"]["id"])
         if subscription_response[0]:
