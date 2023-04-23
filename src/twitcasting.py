@@ -35,8 +35,7 @@ class Twitcasting:
         payloads = {
             "user_id": user_id,
             "events": [
-                "livestart",
-                "liveend"
+                "livestart"
             ]
         }
         response = requests.post('https://apiv2.twitcasting.tv/webhooks', headers=self.headers, data=json.dumps(payloads))
@@ -47,7 +46,7 @@ class Twitcasting:
             return False, response.json()
 
     def remove_subscription(self, user_id: str) -> (bool, dict):
-        response = requests.delete(f'https://apiv2.twitcasting.tv/webhooks?user_id={user_id}&events[]=livestart&events[]=liveend', headers=self.headers)
+        response = requests.delete(f'https://apiv2.twitcasting.tv/webhooks?user_id={user_id}&events[]=livestart', headers=self.headers)
         if response.status_code == 200:
             return True, response.json()
         else:
