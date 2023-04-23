@@ -36,7 +36,9 @@ async def get_records():
         user_data = metadata_manager.get(live_id)
         record = {
             "live_id": live_id,
+            "screen_id": user_data["screen_id"],
             "user_name": user_data["user_name"],
+            "profile_image": user_data["profile_image"],
             "live_title": user_data["live_title"],
             "live_subtitle": user_data["live_subtitle"],
             "start_time": user_data["start_time"]
@@ -46,12 +48,14 @@ async def get_records():
     return {"recordings": response}
 
 
-@app.post("/recordings/{user_name}", status_code=status.HTTP_200_OK)
-async def start_recording(user_name: str, response: Response):
-    user_data_response = twitcasting.get_user_info(user_name)
+@app.post("/recordings/{screen_id}", status_code=status.HTTP_200_OK)
+async def start_recording(screen_id: str, response: Response):
+    user_data_response = twitcasting.get_user_info(screen_id)
     if user_data_response[0]:
         if user_data_response[1]["user"]["is_live"]:
             live_id = user_data_response[1]["user"]["last_movie_id"]
+            user_name = user_data_response[1]["user"]["name"]
+            profile_image = user_data_response[1]["user"]["image"]
 
             live_title = "title"
             live_subtitle = "subtitle"
@@ -64,13 +68,16 @@ async def start_recording(user_name: str, response: Response):
                 live_subtitle = live_data_response[1]["movie"]["subtitle"]
                 live_start_time = live_data_response[1]["movie"]["created"]
 
-            if stream_manager.start(user_name, live_id, live_title, live_subtitle):
-                metadata_manager.add(user_name, live_id, live_title, live_subtitle, live_start_time)
+            if stream_manager.start(screen_id, live_id, live_title, live_subtitle):
+                metadata_manager.add(screen_id, user_name, profile_image, live_id, live_title, live_subtitle, live_start_time)
                 return {
                     "live_id": live_id,
-                    "user": user_name,
+                    "screen_id": screen_id,
+                    "user_name": user_name,
+                    "profile_image": profile_image,
                     "live_title": live_title,
-                    "live_subtitle": live_subtitle
+                    "live_subtitle": live_subtitle,
+                    "live_start_time": live_start_time
                 }
             else:
                 response.status_code = status.HTTP_409_CONFLICT
@@ -82,16 +89,16 @@ async def start_recording(user_name: str, response: Response):
         return {"error": user_data_response[1]["error"]["message"]}
 
 
-@app.delete("/recordings/{user_name}", status_code=status.HTTP_200_OK)
-async def stop_recording(user_name: str, response: Response):
-    user_data_response = twitcasting.get_user_info(user_name)
+@app.delete("/recordings/{screen_id}", status_code=status.HTTP_200_OK)
+async def stop_recording(screen_id: str, response: Response):
+    user_data_response = twitcasting.get_user_info(screen_id)
     if user_data_response[0]:
         if user_data_response[1]["user"]["is_live"]:
             live_id = user_data_response[1]["user"]["last_movie_id"]
 
             if stream_manager.stop(live_id):
                 metadata_manager.remove(live_id)
-                return {"user": user_name}
+                return {"screen_id": screen_id}
             else:
                 response.status_code = status.HTTP_404_NOT_FOUND
                 return {"error": "recording not found"}
