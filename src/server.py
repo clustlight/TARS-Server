@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, status, Response
 from starlette.middleware.cors import CORSMiddleware
 
@@ -17,6 +19,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+port = os.environ.get("PORT")
 
 
 @app.get("/", status_code=status.HTTP_200_OK)
@@ -46,6 +50,20 @@ async def get_records():
         response.append(record)
 
     return {"recordings": response}
+
+
+@app.delete("/recordings", status_code=status.HTTP_200_OK)
+async def stop_all_recordings():
+    record_flags = stream_manager.events
+    active_streams = [key for key, value in record_flags.items() if not value.is_set()]
+    non_active_streams = [key for key, value in record_flags.items() if value.is_set()]
+    metadata_manager.update(non_active_streams)
+
+    for live_id in active_streams:
+        if stream_manager.stop(live_id):
+            metadata_manager.remove(live_id)
+
+    return {"message": "ok"}
 
 
 @app.post("/recordings/{screen_id}", status_code=status.HTTP_200_OK)
