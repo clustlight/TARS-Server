@@ -29,6 +29,6 @@ COPY --from=builder /static-ffmpeg/ffmpeg-4.4.1-amd64-static/ffmpeg /bin/
 
 WORKDIR app/
 
-COPY ./src/* /app/src/
+COPY ./src/ /app/src/
 
 ENTRYPOINT ["python", "src/main.py"]

@@ -18,7 +18,7 @@ app = FastAPI()
 PATH_STATIC = str(pathlib.Path(__file__).resolve().parent / "templates")
 templates = Jinja2Templates(directory=PATH_STATIC)
 
-PATH_STATIC_NEXT = str(pathlib.Path(__file__).resolve().parent / "templates" / "_next")
+PATH_STATIC_NEXT = str(pathlib.Path(__file__).resolve().parent / "templates/_next")
 
 app.mount(
     '/_next',
