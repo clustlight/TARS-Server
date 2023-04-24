@@ -14,7 +14,7 @@ from download import stream_notification
 
 def start_api_server():
     port = int(os.environ.get("PORT"))
-    uvicorn.run(app, host='0.0.0.0', port=port, log_level='info')
+    uvicorn.run(app, host='0.0.0.0', port=port, log_level='info', access_log=False)
 
 
 def start_websocket_client():
