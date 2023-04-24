@@ -7,6 +7,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
 
 from metadata import MetadataManager
+import utils
 from stream import StreamManager
 from twitcasting import Twitcasting
 
@@ -87,6 +88,9 @@ async def start_recording(screen_id: str, response: Response):
     user_data_response = twitcasting.get_user_info(screen_id)
     if user_data_response[0]:
         if user_data_response[1]["user"]["is_live"]:
+            screen_id = utils.escape_characters(screen_id)
+            utils.create_user_directory(screen_id)
+
             live_id = user_data_response[1]["user"]["last_movie_id"]
             user_name = user_data_response[1]["user"]["name"]
             profile_image = user_data_response[1]["user"]["image"]

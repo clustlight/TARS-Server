@@ -21,7 +21,6 @@ def download(event, url, screen_id, live_id, live_title, live_subtitle):
     screen_id = utils.escape_characters(screen_id)
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
-    utils.create_user_directory(screen_id)
 
     title = utils.get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
     utils.create_segment_directory(screen_id, live_id)
@@ -82,7 +81,6 @@ async def stream_comments(event, url, screen_id, live_id, live_title, live_subti
     screen_id = utils.escape_characters(screen_id)
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
-    utils.create_user_directory(screen_id)
     title = utils.get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
     file = open(f"./outputs/{screen_id}/{title}.json", "w", encoding="utf-8")
     async with websockets.client.connect(url, user_agent_header=user_agent) as websocket:
