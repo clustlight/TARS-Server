@@ -12,5 +12,6 @@ uvicorn==0.20.0
 python-dotenv==0.21.0
 requests==2.28.1
 websockets==10.4
-aiofiles
-Jinja2
+aiofiles==23.1.0
+Jinja2==3.1.2
+sqlalchemy==2.0.10
