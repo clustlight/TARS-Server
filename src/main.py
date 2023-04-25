@@ -9,7 +9,8 @@ import uvicorn
 
 from server import app
 import utils
-from download import stream_notification
+from download import stream_notification, fetch_scheduler
+from database import Base, engine
 
 
 def start_api_server():
@@ -26,7 +27,10 @@ def main():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s  [%(levelname)s] (%(name)s) >> %(message)s')
 
     os.chdir(os.path.dirname(pathlib.Path(__file__).parent.resolve()))
+
     utils.create_output_directory()
+    Base.metadata.create_all(engine)
+
     with ProcessPoolExecutor() as executor:
         executor.submit(start_api_server)
         executor.submit(start_websocket_client)

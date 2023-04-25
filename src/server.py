@@ -25,7 +25,7 @@ app.mount(
     '/_next',
     StaticFiles(directory=PATH_STATIC_NEXT),
     name='next'
-    )
+)
 
 app.add_middleware(
     CORSMiddleware,
