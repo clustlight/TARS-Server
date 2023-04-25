@@ -216,3 +216,26 @@ async def remove_subscription(screen_id: str, response: Response):
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": user_data_response[1]["error"]["message"]}
+
+
+@app.get("/users", status_code=status.HTTP_200_OK)
+async def get_users():
+    response = {
+        "users": []
+    }
+    users = database.get_subscription_users()
+    for user in users:
+        response["users"] += [
+            {
+                "user_id": user.id,
+                "screen_id": user.screen_id,
+                "user_name": user.name,
+                "profile_image": user.profile_image,
+                "profile_description": user.profile_description,
+                "level": user.level,
+                "supporter_count": user.supporter_count,
+                "supporting_count": user.supporting_count
+            }
+        ]
+
+    return response
