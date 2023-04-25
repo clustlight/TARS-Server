@@ -29,6 +29,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./outputs/:/app/outputs
+      - ./data/:/app/data
     ports:
       - ${PORT}:${PORT}
     environment:
