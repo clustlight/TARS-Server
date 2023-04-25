@@ -67,4 +67,4 @@ class Twitcasting:
             return True, response.json()
         else:
             logger.error(f"API Error: ({response.status_code}) {response.json()['error']['message']}")
-            return False, response.json
+            return False, response.json()
