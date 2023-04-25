@@ -8,6 +8,7 @@ from starlette.staticfiles import StaticFiles
 
 from metadata import MetadataManager
 import utils
+import database
 from stream import StreamManager
 from twitcasting import Twitcasting
 
@@ -87,6 +88,7 @@ async def stop_all_recordings():
 async def start_recording(screen_id: str, response: Response):
     user_data_response = twitcasting.get_user_info(screen_id)
     if user_data_response[0]:
+        database.update_user(user_data_response[1])
         if user_data_response[1]["user"]["is_live"]:
             utils.create_user_directory(utils.escape_characters(screen_id))
 
@@ -166,6 +168,8 @@ async def get_subscriptions(response: Response):
 async def add_subscription(screen_id: str, response: Response):
     user_data_response = twitcasting.get_user_info(screen_id)
     if user_data_response[0]:
+        database.update_user(user_data_response[1])
+        database.set_subscription_user(user_data_response[1]["user"]["id"])
         subscription_response = twitcasting.add_subscription(user_data_response[1]["user"]["id"])
         if subscription_response[0]:
             user = database.get_user(user_data_response[1]["user"]["id"])
@@ -191,6 +195,8 @@ async def add_subscription(screen_id: str, response: Response):
 async def remove_subscription(screen_id: str, response: Response):
     user_data_response = twitcasting.get_user_info(screen_id)
     if user_data_response[0]:
+        database.update_user(user_data_response[1])
+        database.unset_subscription_user(user_data_response[1]["user"]["id"])
         subscription_response = twitcasting.remove_subscription(user_data_response[1]["user"]["id"])
         if subscription_response[0]:
             user = database.get_user(user_data_response[1]["user"]["id"])
