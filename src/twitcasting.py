@@ -26,7 +26,17 @@ class Twitcasting:
     def get_subscriptions(self) -> (bool, dict):
         response = requests.get('https://apiv2.twitcasting.tv/webhooks', headers=self.headers)
         if response.status_code == 200:
-            return True, response.json()
+            data = response.json()
+            users = data["webhooks"]
+            if data["all_count"] > 50:
+                count = data["all_count"] - 50
+                i = 1
+                while count > 0:
+                    response = requests.get(f'https://apiv2.twitcasting.tv/webhooks?offset={50 * i}', headers=self.headers)
+                    i += 1
+                    count -= 50
+                    users += response.json()["webhooks"]
+            return True, data
         else:
             logger.error(f"API Error: ({response.status_code}) {response.json()['error']['message']}")
             return False, response.json()
