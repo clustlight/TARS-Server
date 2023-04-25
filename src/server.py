@@ -150,7 +150,12 @@ async def stop_recording(screen_id: str, response: Response):
 async def get_subscriptions(response: Response):
     api_response = twitcasting.get_subscriptions()
     if api_response[0]:
-        return api_response[1]
+        subscriptions = {
+            "users": []
+        }
+        for subscription in api_response[1]["webhooks"]:
+            subscriptions["users"].append(subscription["user_id"])
+        return subscriptions
     else:
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         return {"error": api_response[1]["error"]["message"]}
