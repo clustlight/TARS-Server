@@ -106,7 +106,8 @@ async def start_recording(screen_id: str, response: Response):
                 live_start_time = live_data_response[1]["movie"]["created"]
 
             if stream_manager.start(screen_id, live_id, live_title, live_subtitle):
-                metadata_manager.add(screen_id, user_name, profile_image, live_id, live_title, live_subtitle, live_start_time)
+                metadata_manager.add(screen_id, user_name, profile_image, live_id, live_title, live_subtitle,
+                                     live_start_time)
                 return {
                     "live_id": live_id,
                     "screen_id": screen_id,
@@ -167,7 +168,17 @@ async def add_subscription(screen_id: str, response: Response):
     if user_data_response[0]:
         subscription_response = twitcasting.add_subscription(user_data_response[1]["user"]["id"])
         if subscription_response[0]:
-            return subscription_response[1]
+            user = database.get_user(user_data_response[1]["user"]["id"])
+            return {
+                "user_id": user.id,
+                "screen_id": user.screen_id,
+                "user_name": user.name,
+                "profile_image": user.profile_image,
+                "profile_description": user.profile_description,
+                "level": user.level,
+                "supporter_count": user.supporter_count,
+                "supporting_count": user.supporting_count
+            }
         else:
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return {"error": subscription_response[1]["error"]["message"]}
@@ -182,7 +193,17 @@ async def remove_subscription(screen_id: str, response: Response):
     if user_data_response[0]:
         subscription_response = twitcasting.remove_subscription(user_data_response[1]["user"]["id"])
         if subscription_response[0]:
-            return subscription_response[1]
+            user = database.get_user(user_data_response[1]["user"]["id"])
+            return {
+                "user_id": user.id,
+                "screen_id": user.screen_id,
+                "user_name": user.name,
+                "profile_image": user.profile_image,
+                "profile_description": user.profile_description,
+                "level": user.level,
+                "supporter_count": user.supporter_count,
+                "supporting_count": user.supporting_count
+            }
         else:
             response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
             return {"error": subscription_response[1]["error"]["message"]}
