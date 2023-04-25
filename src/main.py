@@ -34,6 +34,7 @@ def main():
     with ProcessPoolExecutor() as executor:
         executor.submit(start_api_server)
         executor.submit(start_websocket_client)
+        executor.submit(fetch_scheduler)
 
 
 if __name__ == "__main__":

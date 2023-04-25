@@ -9,6 +9,8 @@ import requests
 import websockets.client
 
 import utils
+import database
+from twitcasting import Twitcasting
 
 logger = logging.getLogger(__name__)
 
@@ -120,3 +122,27 @@ async def stream_notification(url):
                     logger.info(f"Received LIVE END Notification ({screen_id})")
         except websockets.ConnectionClosed:
             continue
+
+
+def fetch_scheduler():
+    sleep(3)
+    twitcasting = Twitcasting()
+
+    while True:
+        fetch_count = 0
+        response = requests.get(f"http://localhost:{port}/subscriptions")
+        users = response.json()["users"]
+        for user in users:
+            database.set_subscription_user(user)
+
+        for user in users:
+            fetch_count += 1
+            user_data_response = twitcasting.get_user_info(user)
+            if user_data_response[0]:
+                database.update_user(user_data_response[1])
+
+            if fetch_count == 5:
+                fetch_count = 0
+                sleep(60)
+            else:
+                sleep(1)
