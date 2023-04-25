@@ -7,6 +7,7 @@
 
 .idea/*
 outputs/*
+data/*
 
 # User-specific stuff
 .idea/**/workspace.xml
