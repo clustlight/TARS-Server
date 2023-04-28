@@ -9,7 +9,7 @@ import uvicorn
 
 from server import app
 import utils
-from download import stream_notification, fetch_scheduler
+from parallel import stream_notification, fetch_scheduler
 from database import Base, engine
 
 
