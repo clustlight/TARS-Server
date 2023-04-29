@@ -12,14 +12,14 @@ import utils
 import database
 from twitcasting import Twitcasting
 
-logger = logging.getLogger(__name__)
 
 port = os.environ.get("PORT")
 user_agent = os.environ.get("USER_AGENT")
 token = os.environ.get("NOTIFICATION_SERVER_TOKEN")
 
 
-def download(event, url, screen_id, live_id, live_title, live_subtitle):
+def stream_video(event, url, screen_id, live_id, live_title, live_subtitle):
+    logger = logging.getLogger("Video")
     screen_id = utils.escape_characters(screen_id)
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
@@ -75,11 +75,13 @@ def concatenate_segments(screen_id, live_id, title):
     return process
 
 
-def comments(event, url, screen_id, live_id, live_title, live_subtitle):
+def start_stream_comments(event, url, screen_id, live_id, live_title, live_subtitle):
     asyncio.run(stream_comments(event, url, screen_id, live_id, live_title, live_subtitle))
 
 
 async def stream_comments(event, url, screen_id, live_id, live_title, live_subtitle):
+    logger = logging.getLogger("Comment")
+
     screen_id = utils.escape_characters(screen_id)
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
@@ -103,6 +105,10 @@ async def stream_comments(event, url, screen_id, live_id, live_title, live_subti
 
 
 async def stream_notification(url):
+    sleep(1)
+    logger = logging.getLogger("Notification")
+    logger.info(f"Connecting to Notification Server...")
+    logger.info(f"TARS-Outpost-Endpoint: {url}")
     async for websocket in websockets.client.connect(
             url,
             ping_interval=5,
@@ -125,20 +131,25 @@ async def stream_notification(url):
 
 
 def fetch_scheduler():
+    logger = logging.getLogger("Subscriptions")
     sleep(3)
     twitcasting = Twitcasting()
 
     while True:
         fetch_count = 0
+        logger.debug("Retrieving subscriptions...")
         response = requests.get(f"http://localhost:{port}/subscriptions")
         users = response.json()["users"]
+        logger.debug(f"{len(users)} user(s) found")
         for user in users:
             database.set_subscription_user(user)
 
         for user in users:
             fetch_count += 1
+            logger.debug(f"Retrieving user_id: [{user}]'s metadata...")
             user_data_response = twitcasting.get_user_info(user)
             if user_data_response[0]:
+                logger.debug(f"{user} is {user_data_response[1]['user']['screen_id']}")
                 database.update_user(user_data_response[1])
 
             if fetch_count == 5:

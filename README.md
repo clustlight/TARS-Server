@@ -49,6 +49,10 @@ $ docker-compose up
 Get information on ongoing recordings
 
 
+- DELETE `/recordings`  
+Stop all ongoing recordings
+
+
 - POST `/recordings/<user_name>`  
 Start recording for the specified user
 
@@ -68,6 +72,11 @@ Add specified user to automatic recording list
 
 - DELETE `/subscriptions/<user_name>`  
 Remove specified user from automatic recording list
+
+### Users
+- GET `/users`  
+Get detailed information on automatic recording targets
+
 
 
 For more information, see `http://<your-server>/docs`
