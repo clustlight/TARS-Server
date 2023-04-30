@@ -11,14 +11,17 @@ __[TARS-Outpost](https://github.com/quadseed/TARS-Outpost) is required to use th
 ### Set environment variable
 Rename `.env.sample` to `.env` and fill in the required information
 
-| Parameter                 | Description                    |
-|---------------------------|--------------------------------|
-| PORT                      | Web API Server listen port     |
-| USER_AGENT                | Web request user agent         |
-| NOTIFICATION_SERVER_URL   | TARS-Outpost URL   (Websocket) |
-| NOTIFICATION_SERVER_TOKEN | TARS-Outpost Server Token      |
-| CLIENT_ID                 | Twitcasting App Client ID      |
-| CLIENT_SECRET             | Twitcasting App Client Secret  |
+| Parameter                 | Description                                              |
+|---------------------------|----------------------------------------------------------|
+| PORT                      | Web API Server listen port                               |
+| USER_AGENT                | Web request user agent                                   |
+| AUTO_RECORDING            | Enable auto-recording feature (TARS-Outpost is required) |
+| NOTIFICATION_SERVER_URL   | TARS-Outpost URL   (Websocket)                           |
+| NOTIFICATION_SERVER_TOKEN | TARS-Outpost Server Token                                |
+| CLIENT_ID                 | Twitcasting App Client ID                                |
+| CLIENT_SECRET             | Twitcasting App Client Secret                            |
+| DISCORD_WEBHOOK           | Enable Discord Webhook Notification                      |
+| DISCORD_WEBHOOK_URL       | Discord Webhook URL                                      |
 
 ### Make `docker-compose.yml`
 ```yaml

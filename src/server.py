@@ -11,10 +11,12 @@ import utils
 import database
 from stream import StreamManager
 from twitcasting import Twitcasting
+from discord import Discord
 
 stream_manager = StreamManager()
 metadata_manager = MetadataManager()
 twitcasting = Twitcasting()
+discord = Discord()
 app = FastAPI()
 
 PATH_STATIC = str(pathlib.Path(__file__).resolve().parent / "templates")
@@ -110,6 +112,10 @@ async def start_recording(screen_id: str, response: Response):
             if stream_manager.start(screen_id, live_id, live_title, live_subtitle):
                 metadata_manager.add(screen_id, user_name, profile_image, live_id, live_title, live_subtitle,
                                      live_start_time)
+
+                if os.environ.get("DISCORD_WEBHOOK").lower() in ('true', 'enable', 'on'):
+                    discord.push_start_notification(screen_id, user_name, profile_image, live_id, live_title, live_subtitle)
+
                 return {
                     "live_id": live_id,
                     "screen_id": screen_id,
