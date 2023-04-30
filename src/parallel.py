@@ -12,7 +12,6 @@ import utils
 import database
 from twitcasting import Twitcasting
 
-
 port = os.environ.get("PORT")
 user_agent = os.environ.get("USER_AGENT")
 token = os.environ.get("NOTIFICATION_SERVER_TOKEN")
@@ -24,7 +23,7 @@ def stream_video(event, url, screen_id, live_id, live_title, live_subtitle):
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
 
-    title = utils.get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
+    file_title = utils.get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
     utils.create_segment_directory(screen_id, live_id)
 
     process = Popen(
@@ -44,24 +43,23 @@ def stream_video(event, url, screen_id, live_id, live_title, live_subtitle):
                 logger.info(f"Detect abort signals! ({screen_id})")
                 logger.info(f"Started interruption process.... ({screen_id})")
                 process.communicate(str.encode("q"))
-                sleep(2)
-                process.terminate()
-                final_process = concatenate_segments(screen_id, live_id, title)
-                final_process.wait()
-                utils.delete_segment_directory(screen_id, live_id)
-                logger.info(f"FFmpeg shutdown has been completed ({screen_id})")
+                shutdown_video_stream(logger, process, screen_id, live_id, file_title)
                 return
         else:
             logger.info(f"The broadcast has ended ({screen_id})")
             event.set()
             logger.info(f"Final processing has been initiated ({screen_id})")
-            sleep(2)
-            process.terminate()
-            final_process = concatenate_segments(screen_id, live_id, title)
-            final_process.wait()
-            utils.delete_segment_directory(screen_id, live_id)
-            logger.info(f"FFmpeg shutdown has been completed ({screen_id})")
+            shutdown_video_stream(logger, process, screen_id, live_id, file_title)
             return
+
+
+def shutdown_video_stream(logger, process, screen_id, live_id, file_title):
+    sleep(2)
+    process.terminate()
+    final_process = concatenate_segments(screen_id, live_id, file_title)
+    final_process.wait()
+    utils.delete_segment_directory(screen_id, live_id)
+    logger.info(f"FFmpeg shutdown has been completed ({screen_id})")
 
 
 def concatenate_segments(screen_id, live_id, title):
