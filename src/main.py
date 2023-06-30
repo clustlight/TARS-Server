@@ -29,6 +29,7 @@ def main():
     os.chdir(os.path.dirname(pathlib.Path(__file__).parent.resolve()))
 
     utils.create_output_directory()
+    utils.create_temp_directory()
     Base.metadata.create_all(engine)
 
     with ProcessPoolExecutor() as executor:

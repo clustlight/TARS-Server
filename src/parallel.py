@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import shutil
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
 
@@ -27,7 +28,7 @@ def stream_video(event, url, screen_id, live_id, live_title, live_subtitle):
     utils.create_segment_directory(screen_id, live_id)
 
     process = Popen(
-        f"exec ffmpeg -i {url} -user_agent '{user_agent}' -http_persistent 0 -c copy -f segment -segment_list_flags +live './outputs/{screen_id}/{live_id}/%05d.ts'",
+        f"exec ffmpeg -i {url} -user_agent '{user_agent}' -http_persistent 0 -c copy -f segment -segment_list_flags +live './temp/{screen_id}/{live_id}/%05d.ts'",
         shell=True,
         stdin=PIPE,
         stderr=DEVNULL
@@ -65,7 +66,7 @@ def shutdown_video_stream(logger, process, screen_id, live_id, file_title):
 def concatenate_segments(screen_id, live_id, title):
     utils.create_segment_index(screen_id, live_id)
     process = Popen(
-        f"exec ffmpeg -f concat -i './outputs/{screen_id}/{live_id}/index.txt' -c copy -movflags faststart './outputs/{screen_id}/{title}.mp4'",
+        f"exec ffmpeg -f concat -i './temp/{screen_id}/{live_id}/index.txt' -c copy -movflags faststart './outputs/{screen_id}/{title}.mp4'",
         shell=True,
         stdin=PIPE,
         stderr=DEVNULL
@@ -84,13 +85,14 @@ async def stream_comments(event, url, screen_id, live_id, live_title, live_subti
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
     title = utils.get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
-    file = open(f"./outputs/{screen_id}/{title}.json", "w", encoding="utf-8")
+    file = open(f"./temp/{screen_id}/{title}.json", "w", encoding="utf-8")
     async with websockets.client.connect(url, user_agent_header=user_agent) as websocket:
         logger.info(f"Comment stream started ({screen_id})")
         try:
             async for data in websocket:
                 if event.is_set():
                     file.close()
+                    shutil.move(f"./temp/{screen_id}/{title}.json", f"./outputs/{screen_id}/{title}.json")
                     logger.info(f"Comment stream has been closed ({screen_id})")
                     return
                 messages = json.loads(data)
@@ -99,6 +101,7 @@ async def stream_comments(event, url, screen_id, live_id, live_title, live_subti
                     file.write(rf"{text}" + "\n")
         except websockets.ConnectionClosed:
             file.close()
+            shutil.move(f"./temp/{screen_id}/{title}.json", f"./outputs/{screen_id}/{title}.json")
             logger.info(f"Comment websocket connection has been closed ({screen_id})")
 
 
