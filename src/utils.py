@@ -13,25 +13,32 @@ def create_output_directory():
     if not os.path.exists("../outputs"):
         os.mkdir("../outputs")
 
+def create_temp_directory():
+    if not os.path.exists("../temp"):
+        os.mkdir("../temp")
+
 
 def create_user_directory(screen_id):
     if not os.path.exists(f"./outputs/{screen_id}"):
         os.mkdir(f"./outputs/{screen_id}")
 
+    if not os.path.exists(f"./temp/{screen_id}"):
+        os.mkdir(f"./temp/{screen_id}")
+
 
 def create_segment_directory(screen_id, live_id):
-    if not os.path.exists(f"./outputs/{screen_id}/{live_id}"):
-        os.mkdir(f"./outputs/{screen_id}/{live_id}")
+    if not os.path.exists(f"./temp/{screen_id}/{live_id}"):
+        os.mkdir(f"./temp/{screen_id}/{live_id}")
 
 
 def delete_segment_directory(screen_id, live_id):
-    if os.path.exists(f"./outputs/{screen_id}/{live_id}"):
-        shutil.rmtree(f"./outputs/{screen_id}/{live_id}")
+    if os.path.exists(f"./temp/{screen_id}/{live_id}"):
+        shutil.rmtree(f"./temp/{screen_id}/{live_id}")
 
 
 def create_segment_index(screen_id, live_id):
-    path = pathlib.Path(f"./outputs/{screen_id}/{live_id}")
-    with open(f"./outputs/{screen_id}/{live_id}/index.txt", 'w') as f:
+    path = pathlib.Path(f"./temp/{screen_id}/{live_id}")
+    with open(f"./temp/{screen_id}/{live_id}/index.txt", 'w') as f:
         for index, item in enumerate(path.glob("*.ts")):
             if index == 0:
                 continue
