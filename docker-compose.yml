@@ -8,6 +8,7 @@ services:
     volumes:
       - ./src/:/app/src
       - ./outputs/:/app/outputs
+      - ./temp/:/app/temp
       - ./data/:/app/data
     ports:
       - ${PORT}:${PORT}
