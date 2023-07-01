@@ -39,7 +39,7 @@ def delete_segment_directory(screen_id, live_id):
 def create_segment_index(screen_id, live_id):
     path = pathlib.Path(f"./temp/{screen_id}/{live_id}")
     with open(f"./temp/{screen_id}/{live_id}/index.txt", 'w') as f:
-        for index, item in enumerate(path.glob("*.ts")):
+        for index, item in enumerate(sorted(path.glob("*.ts"))):
             if index == 0:
                 continue
             f.write(f"file {item.name}\n")
