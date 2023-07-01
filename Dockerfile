@@ -12,8 +12,8 @@ RUN mkdir src/
 
 WORKDIR static-ffmpeg/
 
-RUN wget https://johnvansickle.com/ffmpeg/old-releases/ffmpeg-4.4.1-amd64-static.tar.xz
-RUN tar Jxvf ./ffmpeg-4.4.1-amd64-static.tar.xz
+RUN wget https://johnvansickle.com/ffmpeg/old-releases/ffmpeg-5.1.1-amd64-static.tar.xz
+RUN tar Jxvf ./ffmpeg-5.1.1-amd64-static.tar.xz
 
 
 FROM gcr.io/distroless/python3-debian11 AS runner
@@ -25,7 +25,7 @@ COPY --from=builder /usr/local/bin/uvicorn /usr/lib/python3.11/site-packages/uvi
 
 ENV PYTHONPATH=/usr/lib/python3.11/site-packages
 
-COPY --from=builder /static-ffmpeg/ffmpeg-4.4.1-amd64-static/ffmpeg /bin/
+COPY --from=builder /static-ffmpeg/ffmpeg-5.1.1-amd64-static/ffmpeg /bin/
 
 WORKDIR app/
 
