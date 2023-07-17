@@ -1,10 +1,10 @@
 # TARS-Server
 ### Twitcasting Autonomous Recording System [Server]
-[![Build Docker Image](https://github.com/quadseed/TARS-Server/actions/workflows/build.yml/badge.svg)](https://github.com/quadseed/TARS-Server/actions/workflows/build.yml)
+[![Build Docker Image](https://github.com/clustlight/TARS-Server/actions/workflows/build.yml/badge.svg)](https://github.com/clustlight/TARS-Server/actions/workflows/build.yml)
 ___
 
 ## Getting Started
-__[TARS-Outpost](https://github.com/quadseed/TARS-Outpost) is required to use the automatic recording feature__
+__[TARS-Outpost](https://github.com/clustlight/TARS-Outpost) is required to use the automatic recording feature__
 ### System Requirements
 - Docker Engine
 
@@ -28,7 +28,7 @@ Rename `.env.sample` to `.env` and fill in the required information
 version: "3"
 services:
   tars-server:
-    image: ghcr.io/quadseed/tars-server:latest
+    image: ghcr.io/clustlight/tars-server:latest
     restart: unless-stopped
     volumes:
       - ./outputs/:/app/outputs
@@ -46,6 +46,8 @@ services:
 ```shell
 $ docker-compose up
 ```
+
+GUI: `http://<your-server>:${PORT}`
 
 ## API Reference
 ### Recordings
