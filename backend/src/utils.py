@@ -10,12 +10,12 @@ user_agent = os.environ.get("USER_AGENT")
 
 
 def create_output_directory():
-    if not os.path.exists("../outputs"):
-        os.mkdir("../outputs")
+    if not os.path.exists("../../outputs"):
+        os.mkdir("../../outputs")
 
 def create_temp_directory():
-    if not os.path.exists("../temp"):
-        os.mkdir("../temp")
+    if not os.path.exists("../../temp"):
+        os.mkdir("../../temp")
 
 
 def create_user_directory(screen_id):
