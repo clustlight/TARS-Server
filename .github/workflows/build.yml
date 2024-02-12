@@ -1,9 +1,13 @@
 name: Build Docker Image
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: 'Release Version. For example, `1.2.8`'
+        required: true
+        default: ''
 
 jobs:
   build:
@@ -18,8 +22,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository_owner }}/tars-server
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{version}},value=v${{ github.event.inputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=v${{ github.event.inputs.version }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
