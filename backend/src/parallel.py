@@ -27,9 +27,20 @@ def stream_video(event, url, screen_id, live_id, live_title, live_subtitle):
     file_title = utils.get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
     utils.create_segment_directory(screen_id, live_id)
 
+    command = [
+        "ffmpeg",
+        "-i", f"{url}",
+        "-user_agent", f"{user_agent}",
+        "-http_persistent", "0",
+        "-c", "copy",
+        "-f", "segment",
+        "-segment_list_flags", "+live",
+        f"./temp/{screen_id}/{live_id}/%05d.ts"
+    ]
+
     process = Popen(
-        f"exec ffmpeg -i {url} -user_agent '{user_agent}' -http_persistent 0 -c copy -f segment -segment_list_flags +live './temp/{screen_id}/{live_id}/%05d.ts'",
-        shell=True,
+        command,
+        shell=False,
         stdin=PIPE,
         stderr=DEVNULL
     )
@@ -65,9 +76,17 @@ def shutdown_video_stream(logger, process, screen_id, live_id, file_title):
 
 def concatenate_segments(screen_id, live_id, title):
     utils.create_segment_index(screen_id, live_id)
+    command = [
+        "ffmpeg",
+        "-f", "concat",
+        "-i", f"./temp/{screen_id}/{live_id}/index.txt",
+        "-c", "copy",
+        "-movflags", "faststart",
+        f"./outputs/{screen_id}/{title}.mp4"
+    ]
     process = Popen(
-        f"exec ffmpeg -f concat -i './temp/{screen_id}/{live_id}/index.txt' -c copy -movflags faststart './outputs/{screen_id}/{title}.mp4'",
-        shell=True,
+        command,
+        shell=False,
         stdin=PIPE,
         stderr=DEVNULL
     )
