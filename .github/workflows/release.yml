@@ -37,5 +37,6 @@ jobs:
         with:
           generate_release_notes: true
           name: v${{ github.event.inputs.version }}
-          tag_name: v${{ github.event.inputs.draft }}
-          draft: ${{ github.event.inputs.prerelease }}
+          tag_name: v${{ github.event.inputs.version }}
+          draft: ${{ github.event.inputs.draft }}
+          prerelease: ${{ github.event.inputs.prerelease }}
