@@ -13,11 +13,6 @@ RUN pip install -r requirements.txt
 
 RUN mkdir src/
 
-WORKDIR static-ffmpeg/
-
-RUN wget https://johnvansickle.com/ffmpeg/old-releases/ffmpeg-5.1.1-amd64-static.tar.xz \
-    && tar Jxvf ./ffmpeg-5.1.1-amd64-static.tar.xz
-
 
 FROM gcr.io/distroless/python3-debian12 AS runner
 
@@ -28,7 +23,7 @@ COPY --from=backend-builder /usr/local/bin/uvicorn /usr/lib/python3.11/site-pack
 
 ENV PYTHONPATH=/usr/lib/python3.11/site-packages
 
-COPY --from=backend-builder /static-ffmpeg/ffmpeg-5.1.1-amd64-static/ffmpeg /bin/
+COPY --from=mwader/static-ffmpeg:4.4.1 /ffmpeg /bin/
 
 WORKDIR app/
 
