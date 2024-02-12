@@ -1,4 +1,3 @@
-version: "3"
 services:
   tars-server:
     build:
@@ -6,7 +5,7 @@ services:
       dockerfile: Dockerfile.development
     restart: unless-stopped
     volumes:
-      - ./src/:/app/src
+      - ./backend/src/:/app/src
       - ./outputs/:/app/outputs
       - ./temp/:/app/temp
       - ./data/:/app/data
