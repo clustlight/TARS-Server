@@ -139,7 +139,9 @@ export default function Home() {
                 <button
                   className='my-5 rounded-2xl border-2 border-blue-400 px-4 py-1.5'
                   onClick={() => {
-                    startRecording(endpoint, recordingInputRef.current?.value as string).then(() => setRefresh(previous => !previous))
+                    startRecording(endpoint, recordingInputRef.current?.value as string).then(() =>
+                      setRefresh(previous => !previous)
+                    )
                   }}
                 >
                   開始
@@ -147,7 +149,9 @@ export default function Home() {
                 <button
                   className='my-5 rounded-2xl border-2 border-red-400 px-4 py-1.5'
                   onClick={() => {
-                    stopRecording(endpoint, recordingInputRef.current?.value as string).then(() => setRefresh(previous => !previous))
+                    stopRecording(endpoint, recordingInputRef.current?.value as string).then(() =>
+                      setRefresh(previous => !previous)
+                    )
                   }}
                 >
                   終了
@@ -185,8 +189,9 @@ export default function Home() {
                 <button
                   className='my-5 rounded-2xl border-2 border-blue-400 px-4 py-1.5'
                   onClick={() => {
-                    addUser(endpoint, userInputRef.current?.value as string).then(() => setRefresh(previous => !previous))
-
+                    addUser(endpoint, userInputRef.current?.value as string).then(() =>
+                      setRefresh(previous => !previous)
+                    )
                   }}
                 >
                   追加
@@ -194,7 +199,9 @@ export default function Home() {
                 <button
                   className='my-5 rounded-2xl border-2 border-red-400 px-4 py-1.5'
                   onClick={() => {
-                    removeUser(endpoint, userInputRef.current?.value as string).then(() => setRefresh(previous => !previous))
+                    removeUser(endpoint, userInputRef.current?.value as string).then(() =>
+                      setRefresh(previous => !previous)
+                    )
                   }}
                 >
                   削除
