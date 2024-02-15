@@ -1,0 +1,27 @@
+name: Frontend Build Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Change directory
+        run: cd frontend
+
+      - name: Install Dependencies
+        run: npm install --frozen-lockfile
+
+      - name: build
+        run: npm run build

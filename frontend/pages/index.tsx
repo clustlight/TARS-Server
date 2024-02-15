@@ -74,7 +74,7 @@ export default function Home() {
   useEffect(() => {
     if (endpoint === '') {
       setEndpoint(
-        `${window.location.protocol}//${window.location.hostname}:3880`
+        `${window.location.protocol}//${window.location.hostname}:${window.location.port}`
       )
     }
     setUpdateAt('----/--/-- --:--:--')
