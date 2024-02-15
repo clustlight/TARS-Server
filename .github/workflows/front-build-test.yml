@@ -15,13 +15,11 @@ jobs:
       - name: setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18.17.1'
-
-      - name: Change directory
-        run: cd frontend
+          node-version: '18.x'
 
       - name: Install Dependencies
         run: npm ci
+        working-directory: frontend
 
       - name: build
         run: npm run build
