@@ -1,0 +1,21 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+      - dependencies
+  categories:
+    - title: BREAKING CHANGES
+      labels:
+        - breaking-change
+    - title: Backend Changes
+      labels:
+        - backend
+    - title: Frontend Changes
+      labels:
+        - frontend
+    - title: Bug Fixes
+      labels:
+        - bug
+    - title: Other Changes
+      labels:
+        - "*"
