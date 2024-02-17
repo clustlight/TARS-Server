@@ -127,27 +127,38 @@ async def stream_comments(event, url, screen_id, live_id, live_title, live_subti
 async def stream_notification(url):
     sleep(1)
     logger = logging.getLogger("Notification")
-    logger.info(f"Connecting to Notification Server...")
     logger.info(f"TARS-Outpost-Endpoint: {url}")
-    async for websocket in websockets.client.connect(
-            url,
-            ping_interval=5,
-            ping_timeout=7,
-            close_timeout=3,
-            extra_headers={"notification-server-access-token": token}
-    ):
-        logger.info("Connected to Notification Server")
+    logger.info(f"Connecting to Notification Server...")
+    while True:
         try:
-            async for data in websocket:
-                message = json.loads(data)
-                screen_id = message['broadcaster']['screen_id']
-                if message["event"] == "livestart":
-                    logger.info(f"Received LIVE START Notification ({screen_id})")
-                    requests.post(f"http://localhost:{port}/recordings/{screen_id}")
-                elif message["event"] == "liveend":
-                    logger.info(f"Received LIVE END Notification ({screen_id})")
-        except websockets.ConnectionClosed:
-            continue
+            async with websockets.client.connect(
+                    url,
+                    ping_interval=5,
+                    ping_timeout=10,
+                    extra_headers={"notification-server-access-token": token}
+            ) as websocket:
+                logger.info("Connected to Notification Server")
+                async for data in websocket:
+                    message = json.loads(data)
+                    screen_id = message['broadcaster']['screen_id']
+                    if message["event"] == "livestart":
+                        logger.info(f"Received LIVE START Notification ({screen_id})")
+                        requests.post(f"http://localhost:{port}/recordings/{screen_id}")
+                    elif message["event"] == "liveend":
+                        logger.info(f"Received LIVE END Notification ({screen_id})")
+        except websockets.ConnectionClosedError as e:
+            logger.error(f"Websocket connection has been closed")
+            logger.error(f"CODE: {e.code}, Reason: {e.reason}")
+            if e.code == 1008:
+                logger.error(f"Notification Server authentication failed")
+                logger.error(f"Please check NOTIFICATION_SERVER_TOKEN")
+
+        except websockets.exceptions.InvalidStatusCode as e:
+            logger.error(f"Server rejected WebSocket connection: HTTP {e.status_code}")
+
+        logger.info("Wait for 3 seconds...")
+        await asyncio.sleep(3)
+        logger.info(f"Reconnecting...")
 
 
 def fetch_scheduler():
