@@ -1,4 +1,4 @@
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Manager
 
 from parallel import stream_video, start_stream_comments
@@ -7,7 +7,7 @@ from utils import get_comment_stream_url
 
 class StreamManager:
     def __init__(self):
-        self.executor = ProcessPoolExecutor(max_workers=256)
+        self.executor = ThreadPoolExecutor(max_workers=64)
         self.events = {}
         self.manager = Manager()
 
