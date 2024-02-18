@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 import pathlib
-from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
 import dotenv
 import uvicorn
@@ -32,7 +32,7 @@ def main():
     utils.create_temp_directory()
     Base.metadata.create_all(engine)
 
-    with ProcessPoolExecutor() as executor:
+    with ThreadPoolExecutor() as executor:
         executor.submit(start_api_server)
         if os.environ.get("AUTO_RECORDING").lower() in ('true', 'enable', 'on'):
             executor.submit(start_websocket_client)
