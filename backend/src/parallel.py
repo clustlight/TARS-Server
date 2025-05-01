@@ -37,6 +37,21 @@ def stream_video(event, screen_id, live_id, live_title, live_subtitle):
         logger.error("No valid stream URL found.")
         return
 
+    # A filler is streamed on the server side until the broadcast starts, but by default, it cannot adapt to resolution changes.
+    # When the filler is being streamed, the segment file names include the term "preroll."
+    # To start recording after the resolution changes, ensure that the term "preroll" is no longer detected.
+    while True:
+        res = requests.get(url=url, stream=True)
+        if res.status_code == 200:
+            logger.debug("Successfully fetched m3u8 playlist.")
+            playlist_content = res.content.decode("utf-8")
+            if "preroll" not in playlist_content:
+                logger.debug("Preroll segment is no longer present in the playlist.")
+                break
+        else:
+            logger.warning(f"Failed to fetch m3u8 playlist. Status code: {res.status_code}")
+        sleep(1)
+
     screen_id = utils.escape_characters(screen_id)
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
@@ -92,15 +107,26 @@ def shutdown_video_stream(logger, process, screen_id, live_id, file_title):
 
 
 def concatenate_segments(screen_id, live_id, title):
-    utils.create_segment_index(screen_id, live_id)
+    # Get all segment files in the directory
+    segment_dir = f"./temp/{screen_id}/{live_id}"
+    segment_files = sorted(
+        [os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".ts")]
+    )
+
+    if not segment_files:
+        raise FileNotFoundError(f"No segment files found in {segment_dir}")
+
+    # Create the ffmpeg input string for concat filter
+    input_files = "|".join(segment_files)
+
     command = [
         "ffmpeg",
-        "-f", "concat",
-        "-i", f"./temp/{screen_id}/{live_id}/index.txt",
+        "-i", f"concat:{input_files}",  # Use concat filter with input files
         "-c", "copy",
         "-movflags", "faststart",
         f"./outputs/{screen_id}/{title}.mp4"
     ]
+
     process = Popen(
         command,
         shell=False,
