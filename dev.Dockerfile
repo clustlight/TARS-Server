@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y wget xz-utils tar
 
 RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
-RUN pip install poetry
+RUN pip install poetry poetry-plugin-export
 
 RUN poetry export --without-hashes -f requirements.txt > requirements.txt
 RUN pip install -r requirements.txt
@@ -23,7 +23,7 @@ COPY --from=backend-builder /usr/local/bin/uvicorn /usr/lib/python3.11/site-pack
 
 ENV PYTHONPATH=/usr/lib/python3.11/site-packages
 
-COPY --from=mwader/static-ffmpeg:4.4.1 /ffmpeg /bin/
+COPY --from=mwader/static-ffmpeg:6.1.1 /ffmpeg /bin/
 
 WORKDIR app/
 
