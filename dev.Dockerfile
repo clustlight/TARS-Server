@@ -23,7 +23,7 @@ COPY --from=backend-builder /usr/local/bin/uvicorn /usr/lib/python3.11/site-pack
 
 ENV PYTHONPATH=/usr/lib/python3.11/site-packages
 
-COPY --from=mwader/static-ffmpeg:6.1.1 /ffmpeg /bin/
+COPY --from=mwader/static-ffmpeg:4.4.1 /ffmpeg /bin/
 
 WORKDIR app/
 
