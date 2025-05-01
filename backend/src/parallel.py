@@ -47,6 +47,7 @@ def stream_video(event, screen_id, live_id, live_title, live_subtitle):
     command = [
         "ffmpeg",
         "-user_agent", user_agent,
+        "-http_persistent", "0",
         "-i", f"{url}",
         "-c", "copy",
         "-f", "segment",
