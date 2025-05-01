@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y wget xz-utils tar
 
 RUN pip install --upgrade pip
 RUN pip install --upgrade setuptools
-RUN pip install poetry
+RUN pip install poetry poetry-plugin-export
 
 RUN poetry export --without-hashes -f requirements.txt > requirements.txt
 RUN pip install -r requirements.txt
