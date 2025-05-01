@@ -18,8 +18,25 @@ user_agent = os.environ.get("USER_AGENT")
 token = os.environ.get("NOTIFICATION_SERVER_TOKEN")
 
 
-def stream_video(event, url, screen_id, live_id, live_title, live_subtitle):
+def stream_video(event, screen_id, live_id, live_title, live_subtitle):
     logger = logging.getLogger("Video")
+
+    response = requests.get(
+        'https://twitcasting.tv/streamserver.php',
+        params={
+            "mode": "client",
+            "target": screen_id,
+            "player": "pc_web"
+        }
+    )
+
+    streams = response.json().get("tc-hls", {}).get("streams", {})
+    url = streams.get("high") or streams.get("medium") or streams.get("low")
+
+    if not url:
+        logger.error("No valid stream URL found.")
+        return
+
     screen_id = utils.escape_characters(screen_id)
     live_title = utils.escape_characters(live_title)
     live_subtitle = utils.escape_characters(live_subtitle)
@@ -29,9 +46,9 @@ def stream_video(event, url, screen_id, live_id, live_title, live_subtitle):
 
     command = [
         "ffmpeg",
-        "-i", f"{url}",
-        "-user_agent", f"{user_agent}",
+        "-user_agent", user_agent,
         "-http_persistent", "0",
+        "-i", f"{url}",
         "-c", "copy",
         "-f", "segment",
         "-segment_list_flags", "+live",
