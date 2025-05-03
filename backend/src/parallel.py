@@ -85,22 +85,22 @@ def stream_video(event, screen_id, live_id, live_title, live_subtitle):
         stderr=DEVNULL
     )
 
-    logger.info(f"Recording started ({screen_id})")
+    logger.info(f"Recording has started ({screen_id})")
     while True:
         sleep(1)
-        logger.debug(f"Checking Recording Tasks... ({screen_id})")
+        logger.debug(f"Checking recording task... ({screen_id})")
         if process.poll() is None:
-            logger.debug(f"The broadcast is ongoing ({screen_id})")
+            logger.debug(f"The broadcast is active ({screen_id})")
             if event.is_set():
-                logger.info(f"Detect abort signals! ({screen_id})")
-                logger.info(f"Started interruption process.... ({screen_id})")
+                logger.info(f"Abort signal detected! ({screen_id})")
+                logger.info(f"Starting interruption process... ({screen_id})")
                 process.communicate(str.encode("q"))
                 shutdown_video_stream(logger, process, screen_id, live_id, file_title)
                 return
         else:
             logger.info(f"The broadcast has ended ({screen_id})")
             event.set()
-            logger.info(f"Final processing has been initiated ({screen_id})")
+            logger.info(f"Finalizing the recording process... ({screen_id})")
             shutdown_video_stream(logger, process, screen_id, live_id, file_title)
             return
 
@@ -111,7 +111,7 @@ def shutdown_video_stream(logger, process, screen_id, live_id, file_title):
     final_process = concatenate_segments(screen_id, live_id, file_title)
     final_process.wait()
     utils.delete_segment_directory(screen_id, live_id)
-    logger.info(f"FFmpeg shutdown has been completed ({screen_id})")
+    logger.info(f"FFmpeg shutdown process completed ({screen_id})")
 
 
 def concatenate_segments(screen_id, live_id, title):
