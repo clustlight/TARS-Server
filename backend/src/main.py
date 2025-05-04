@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import os
 import pathlib
 from concurrent.futures import ThreadPoolExecutor
@@ -11,6 +10,7 @@ from server import app
 import utils
 from parallel import stream_notification, fetch_scheduler
 from database import Base, engine
+from log import setup_logging
 
 
 def start_api_server():
@@ -24,9 +24,8 @@ def start_websocket_client():
 
 def main():
     dotenv.load_dotenv()
-    logging.basicConfig(level=logging.INFO, format='[%(levelname)s] (%(name)s) >> %(message)s')
-
     os.chdir(os.path.dirname(pathlib.Path(__file__).parent.resolve()))
+    setup_logging()
 
     utils.create_output_directory()
     utils.create_temp_directory()

@@ -9,6 +9,7 @@ services:
       - ./outputs/:/app/outputs
       - ./temp/:/app/temp
       - ./data/:/app/data
+      - ./logs/:/app/logs
     ports:
       - ${PORT}:${PORT}
     environment:
