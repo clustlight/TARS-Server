@@ -4,6 +4,7 @@ import logging
 import os
 import pathlib
 import shutil
+import socket
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
 
@@ -177,15 +178,21 @@ async def stream_notification(url):
     logger = logging.getLogger("Notification")
     logger.info(f"TARS-Outpost-Endpoint: {url}")
     logger.info(f"Connecting to Notification Server...")
-    while True:
+
+    max_retries = 5  # Maximum reconnection attempts
+    retry_count = 0
+    backoff_time = 3  # Initial wait time (seconds)
+
+    while retry_count < max_retries:
         try:
             async with websockets.client.connect(
-                    url,
-                    ping_interval=5,
-                    ping_timeout=10,
-                    extra_headers={"notification-server-access-token": token}
+                url,
+                ping_interval=5,
+                ping_timeout=10,
+                extra_headers={"notification-server-access-token": token}
             ) as websocket:
                 logger.info("Connected to Notification Server")
+                retry_count = 0  # Reset on successful connection
                 async for data in websocket:
                     message = json.loads(data)
                     screen_id = message['broadcaster']['screen_id']
@@ -195,18 +202,28 @@ async def stream_notification(url):
                     elif message["event"] == "liveend":
                         logger.info(f"Received LIVE END Notification ({screen_id})")
         except websockets.ConnectionClosedError as e:
-            logger.error(f"Websocket connection has been closed")
-            logger.error(f"CODE: {e.code}, Reason: {e.reason}")
+            logger.error(f"Websocket connection has been closed. Code: {e.code}, Reason: {e.reason}")
             if e.code == 1008:
-                logger.error(f"Notification Server authentication failed")
-                logger.error(f"Please check NOTIFICATION_SERVER_TOKEN")
-
+                logger.error("Notification Server authentication failed. Please check NOTIFICATION_SERVER_TOKEN.")
+                break  # Exit without retrying on authentication error
         except websockets.exceptions.InvalidStatusCode as e:
             logger.error(f"Server rejected WebSocket connection: HTTP {e.status_code}")
-
-        logger.info("Wait for 3 seconds...")
-        await asyncio.sleep(3)
-        logger.info(f"Reconnecting...")
+        except Exception as e:
+            if isinstance(e, OSError) and e.errno == 111:
+                logger.error("Connection refused. Please check if the Notification Server is running.")
+            elif isinstance(e, socket.gaierror) and e.errno == -2:
+                logger.error("Name resolution failed. Please check the server URL or your network connection.")
+            else:
+                logger.error(f"An unexpected error occurred: {e}")
+        finally:
+            retry_count += 1
+            if retry_count < max_retries:
+                logger.info(f"Reconnecting in {backoff_time} seconds... (Attempt {retry_count}/{max_retries})")
+                await asyncio.sleep(backoff_time)
+                backoff_time *= 2  # Exponentially increase wait time
+            else:
+                logger.error("Maximum retry attempts reached. Exiting...")
+                break
 
 
 def fetch_scheduler():
