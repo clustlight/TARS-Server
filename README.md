@@ -1,31 +1,31 @@
 # TARS-Server
 ### Twitcasting Autonomous Recording System [Server]
-[![Build Docker Image](https://github.com/clustlight/TARS-Server/actions/workflows/build.yml/badge.svg)](https://github.com/clustlight/TARS-Server/actions/workflows/build.yml)
+[![Build Docker Image](https://github.com/clustlight/TARS-Server/actions/workflows/publish-docker-image.yml/badge.svg)](https://github.com/clustlight/TARS-Server/actions/workflows/publish-docker-image.yml)
 ___
 
 ## Getting Started
 __[TARS-Outpost](https://github.com/clustlight/TARS-Outpost) is required to use the automatic recording feature__
-### System Requirements
-- Docker Engine
 
 ### Set environment variable
 Rename `.env.sample` to `.env` and fill in the required information
 
-| Parameter                 | Description                                              |
-|---------------------------|----------------------------------------------------------|
-| PORT                      | Web API Server listen port                               |
-| USER_AGENT                | Web request user agent                                   |
-| AUTO_RECORDING            | Enable auto-recording feature (TARS-Outpost is required) |
-| NOTIFICATION_SERVER_URL   | TARS-Outpost URL   (Websocket)                           |
-| NOTIFICATION_SERVER_TOKEN | TARS-Outpost Server Token                                |
-| CLIENT_ID                 | Twitcasting App Client ID                                |
-| CLIENT_SECRET             | Twitcasting App Client Secret                            |
-| DISCORD_WEBHOOK           | Enable Discord Webhook Notification                      |
-| DISCORD_WEBHOOK_URL       | Discord Webhook URL                                      |
+| Parameter                 | Description                                              | Default Value                                              | Required |
+|---------------------------|----------------------------------------------------------|------------------------------------------------------------|----------|
+| PORT                      | Web API Server listen port                               | None                                                       | Yes      |
+| USER_AGENT                | Web request user agent                                   | None                                                       | Yes      |
+| AUTO_RECORDING            | Enable auto-recording feature (TARS-Outpost is required) | None                                                       | Yes      |
+| NOTIFICATION_SERVER_URL   | TARS-Outpost URL (Websocket)                             | None                                                       | No       |
+| NOTIFICATION_SERVER_TOKEN | TARS-Outpost Server Token                                | None                                                       | No       |
+| CLIENT_ID                 | Twitcasting App Client ID                                | None                                                       | Yes      |
+| CLIENT_SECRET             | Twitcasting App Client Secret                            | None                                                       | Yes      |
+| DISCORD_WEBHOOK           | Enable Discord Webhook Notification                      | None                                                       | Yes      |
+| DISCORD_WEBHOOK_URL       | Discord Webhook URL                                      | None                                                       | No       |
+| LOG_FORMAT                | Log message format                                       | `%(asctime)s [%(levelname)s] (%(name)s) >> %(message)s`    | No       |
+| SYSLOG_ADDRESS            | Syslog server address                                    | Not set (Syslog disabled)                                  | No       |
+| SYSLOG_PORT               | Syslog server port                                       | `514`                                                      | No       |
 
-### Make `docker-compose.yml`
+### Make `compose.yml`
 ```yaml
-version: "3"
 services:
   tars-server:
     image: ghcr.io/clustlight/tars-server:latest
@@ -34,6 +34,7 @@ services:
       - ./outputs/:/app/outputs
       - ./temp/:/app/temp
       - ./data/:/app/data
+      - ./logs/:/app/logs
     ports:
       - ${PORT}:${PORT}
     environment:
@@ -44,7 +45,7 @@ services:
 
 ### Run Server
 ```shell
-$ docker-compose up
+$ docker compose up
 ```
 
 GUI: `http://<your-server>:${PORT}`
