@@ -1,8 +1,9 @@
 from concurrent.futures import ThreadPoolExecutor
 from multiprocessing import Manager
 
-from parallel import stream_video, start_stream_comments
-from utils import get_stream_url, get_comment_stream_url, get_archive_file_name
+from tasks.comments import get_comment_stream_url, start_stream_comments
+from tasks.video import get_video_stream_url, stream_video
+from utils import get_archive_file_name
 
 
 class StreamManager:
@@ -20,7 +21,7 @@ class StreamManager:
 
         if self.events[live_id].is_set():
             self.events[live_id].clear()
-            stream_url = get_stream_url(screen_id, self.events[live_id])
+            stream_url = get_video_stream_url(screen_id, self.events[live_id])
             websocket_url = get_comment_stream_url(live_id)
 
             file_title = get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
