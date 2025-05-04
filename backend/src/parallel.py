@@ -20,60 +20,17 @@ user_agent = os.environ.get("USER_AGENT")
 token = os.environ.get("NOTIFICATION_SERVER_TOKEN")
 
 
-def stream_video(event, screen_id, live_id, live_title, live_subtitle):
+def stream_video(event, screen_id, live_id, stream_url, file_title):
     logger = logging.getLogger("Video")
 
-    response = requests.get(
-        'https://twitcasting.tv/streamserver.php',
-        params={
-            "mode": "client",
-            "target": screen_id,
-            "player": "pc_web"
-        }
-    )
-
-    streams = response.json().get("tc-hls", {}).get("streams", {})
-    url = streams.get("high") or streams.get("medium") or streams.get("low")
-
-    if not url:
-        logger.error("No valid stream URL found.")
-        return
-
-    # A filler is streamed on the server side until the broadcast starts, but by default, it cannot adapt to resolution changes.
-    # When the filler is being streamed, the segment file names include the term "preroll".
-    # To start recording after the resolution changes, ensure that the term "preroll" is no longer detected.
-
-    MAX_RETRIES = 10
-    for retry_count in range(MAX_RETRIES):
-        logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Checking m3u8 playlist... ({screen_id})")
-        res = requests.get(url=url, stream=True)
-        if res.status_code == 200:
-            logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Successfully fetched m3u8 playlist. ({screen_id})")
-            playlist_content = res.content.decode("utf-8")
-            if "preroll" not in playlist_content:
-                logger.debug(f"Preroll segment is no longer present in the playlist. Starting recording. ({screen_id})")
-                break
-        else:
-            logger.warning(f"[{retry_count + 1}/{MAX_RETRIES}] Failed to fetch m3u8 playlist. Status code: {res.status_code}")
-        sleep(1)
-    else:
-        logger.error(f"Maximum retries reached. Unable to start recording. ({screen_id})")
-        # Signal to stop all related tasks
-        event.set()
-        return
-
     screen_id = utils.escape_characters(screen_id)
-    live_title = utils.escape_characters(live_title)
-    live_subtitle = utils.escape_characters(live_subtitle)
-
-    file_title = utils.get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
     utils.create_segment_directory(screen_id, live_id)
 
     command = [
         "ffmpeg",
         "-user_agent", user_agent,
         "-http_persistent", "0",
-        "-i", f"{url}",
+        "-i", stream_url,
         "-c", "copy",
         "-f", "segment",
         "-segment_list_flags", "+live",
@@ -142,19 +99,16 @@ def concatenate_segments(screen_id, live_id, title):
     return process
 
 
-def start_stream_comments(event, url, screen_id, live_id, live_title, live_subtitle):
-    asyncio.run(stream_comments(event, url, screen_id, live_id, live_title, live_subtitle))
+def start_stream_comments(event, screen_id, url, file_title):
+    asyncio.run(stream_comments(event, screen_id, url, file_title))
 
 
-async def stream_comments(event, url, screen_id, live_id, live_title, live_subtitle):
+async def stream_comments(event, screen_id, url, file_title):
     logger = logging.getLogger("Comment")
 
     screen_id = utils.escape_characters(screen_id)
-    live_title = utils.escape_characters(live_title)
-    live_subtitle = utils.escape_characters(live_subtitle)
-    title = utils.get_archive_file_name(live_id, screen_id, live_title, live_subtitle)
-    file_path = f"./temp/{screen_id}/{title}.json"
-    output_path = f"./outputs/{screen_id}/{title}.json"
+    file_path = f"./temp/{screen_id}/{file_title}.json"
+    output_path = f"./outputs/{screen_id}/{file_title}.json"
 
     file = open(file_path, "w", encoding="utf-8")
     received_ids = set()
