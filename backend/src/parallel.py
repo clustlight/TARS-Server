@@ -2,6 +2,7 @@ import asyncio
 import json
 import logging
 import os
+import pathlib
 import shutil
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
@@ -115,21 +116,17 @@ def shutdown_video_stream(logger, process, screen_id, live_id, file_title):
 
 
 def concatenate_segments(screen_id, live_id, title):
-    # Get all segment files in the directory
     segment_dir = f"./temp/{screen_id}/{live_id}"
-    segment_files = sorted(
-        [os.path.join(segment_dir, f) for f in os.listdir(segment_dir) if f.endswith(".ts")]
-    )
-
-    if not segment_files:
-        raise FileNotFoundError(f"No segment files found in {segment_dir}")
-
-    # Create the ffmpeg input string for concat filter
-    input_files = "|".join(segment_files)
+    path = pathlib.Path(segment_dir)
+    index_file_path = f"{segment_dir}/index.txt"
+    with open(index_file_path, 'w') as f:
+        for item in sorted(path.glob("*.ts")):
+            f.write(f"file {item.name}\n")
 
     command = [
         "ffmpeg",
-        "-i", f"concat:{input_files}",  # Use concat filter with input files
+        "-f", "concat",
+        "-i", index_file_path,
         "-c", "copy",
         "-movflags", "faststart",
         f"./outputs/{screen_id}/{title}.mp4"
