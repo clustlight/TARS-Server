@@ -38,19 +38,27 @@ def stream_video(event, screen_id, live_id, live_title, live_subtitle):
         return
 
     # A filler is streamed on the server side until the broadcast starts, but by default, it cannot adapt to resolution changes.
-    # When the filler is being streamed, the segment file names include the term "preroll."
+    # When the filler is being streamed, the segment file names include the term "preroll".
     # To start recording after the resolution changes, ensure that the term "preroll" is no longer detected.
-    while True:
+
+    MAX_RETRIES = 10
+    for retry_count in range(MAX_RETRIES):
+        logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Checking m3u8 playlist... ({screen_id})")
         res = requests.get(url=url, stream=True)
         if res.status_code == 200:
-            logger.debug("Successfully fetched m3u8 playlist.")
+            logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Successfully fetched m3u8 playlist. ({screen_id})")
             playlist_content = res.content.decode("utf-8")
             if "preroll" not in playlist_content:
-                logger.debug("Preroll segment is no longer present in the playlist.")
+                logger.debug(f"Preroll segment is no longer present in the playlist. Starting recording. ({screen_id})")
                 break
         else:
-            logger.warning(f"Failed to fetch m3u8 playlist. Status code: {res.status_code}")
+            logger.warning(f"[{retry_count + 1}/{MAX_RETRIES}] Failed to fetch m3u8 playlist. Status code: {res.status_code}")
         sleep(1)
+    else:
+        logger.error(f"Maximum retries reached. Unable to start recording. ({screen_id})")
+        # Signal to stop all related tasks
+        event.set()
+        return
 
     screen_id = utils.escape_characters(screen_id)
     live_title = utils.escape_characters(live_title)
@@ -77,22 +85,22 @@ def stream_video(event, screen_id, live_id, live_title, live_subtitle):
         stderr=DEVNULL
     )
 
-    logger.info(f"Recording started ({screen_id})")
+    logger.info(f"Recording has started ({screen_id})")
     while True:
         sleep(1)
-        logger.debug(f"Checking Recording Tasks... ({screen_id})")
+        logger.debug(f"Checking recording task... ({screen_id})")
         if process.poll() is None:
-            logger.debug(f"The broadcast is ongoing ({screen_id})")
+            logger.debug(f"The broadcast is active ({screen_id})")
             if event.is_set():
-                logger.info(f"Detect abort signals! ({screen_id})")
-                logger.info(f"Started interruption process.... ({screen_id})")
+                logger.info(f"Abort signal detected! ({screen_id})")
+                logger.info(f"Starting interruption process... ({screen_id})")
                 process.communicate(str.encode("q"))
                 shutdown_video_stream(logger, process, screen_id, live_id, file_title)
                 return
         else:
             logger.info(f"The broadcast has ended ({screen_id})")
             event.set()
-            logger.info(f"Final processing has been initiated ({screen_id})")
+            logger.info(f"Finalizing the recording process... ({screen_id})")
             shutdown_video_stream(logger, process, screen_id, live_id, file_title)
             return
 
@@ -103,7 +111,7 @@ def shutdown_video_stream(logger, process, screen_id, live_id, file_title):
     final_process = concatenate_segments(screen_id, live_id, file_title)
     final_process.wait()
     utils.delete_segment_directory(screen_id, live_id)
-    logger.info(f"FFmpeg shutdown has been completed ({screen_id})")
+    logger.info(f"FFmpeg shutdown process completed ({screen_id})")
 
 
 def concatenate_segments(screen_id, live_id, title):
