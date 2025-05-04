@@ -1,12 +1,7 @@
 import datetime
 import os
 import re
-
-import requests
-import pathlib
 import shutil
-
-user_agent = os.environ.get("USER_AGENT")
 
 
 def create_output_directory():
@@ -45,14 +40,9 @@ def escape_characters(text):
 
 def get_archive_file_name(movie_id, screen_id, live_title, live_subtitle):
     now = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+
+    screen_id = escape_characters(screen_id)
+    live_title = escape_characters(live_title)
+    live_subtitle = escape_characters(live_subtitle)
+
     return f"[{now}]-[{live_title}__{live_subtitle}]-[{screen_id}]-[{movie_id}]"
-
-
-def get_comment_stream_url(live_id):
-    headers = {
-        "User-Agent": user_agent
-    }
-    data = {"movie_id": live_id}
-    files = {(None, None)}
-    response = requests.post("https://twitcasting.tv/eventpubsuburl.php", headers=headers, data=data, files=files)
-    return response.json()["url"]
