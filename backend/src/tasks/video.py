@@ -30,7 +30,7 @@ def get_video_stream_url(screen_id, event):
     # When the filler is being streamed, the segment file names include the term "preroll".
     # To start recording after the resolution changes, ensure that the term "preroll" is no longer detected.
 
-    MAX_RETRIES = 10
+    MAX_RETRIES = 20
     for retry_count in range(MAX_RETRIES):
         logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Checking m3u8 playlist... ({screen_id})")
         res = requests.get(url=url, stream=True)
