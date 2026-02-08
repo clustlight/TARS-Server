@@ -88,6 +88,7 @@ export default function App() {
 
   const intervalInputRef = useRef<HTMLInputElement>(null)
   const [intervalSec, setIntervalSec] = useState<number>(5)
+  const [sortBy, setSortBy] = useState<'default' | 'level' | 'supporter' | 'id'>('default')
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme')
@@ -144,6 +145,19 @@ export default function App() {
 
   const isUpdateDelayed =
     updateTimestamp !== null && currentTime - updateTimestamp > intervalSec * 2
+
+  const sortedUsers = [...users].sort((a, b) => {
+    switch (sortBy) {
+      case 'level':
+        return b.level - a.level
+      case 'supporter':
+        return b.supporter_count - a.supporter_count
+      case 'id':
+        return a.screen_id.localeCompare(b.screen_id)
+      default:
+        return 0
+    }
+  })
 
   return (
     <main className='min-h-screen bg-gray-50 px-4 py-8 dark:bg-gray-900 md:px-10'>
@@ -336,6 +350,25 @@ export default function App() {
                 <span className='rounded-full bg-amber-600 px-3 py-1 text-sm font-bold text-white shadow-sm dark:bg-amber-500'>
                   {users?.length}
                 </span>
+                <select
+                  value={sortBy}
+                  onChange={e =>
+                    setSortBy(e.target.value as 'default' | 'level' | 'supporter' | 'id')
+                  }
+                  onKeyDown={e => e.preventDefault()}
+                  className='cursor-pointer appearance-none rounded-lg border border-gray-300 bg-white px-3 py-2 pr-9 text-sm outline-none focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white'
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                    backgroundPosition: 'right 0.5rem center',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundSize: '1.5em 1.5em'
+                  }}
+                >
+                  <option value='default'>登録順</option>
+                  <option value='level'>レベル順</option>
+                  <option value='supporter'>サポーター順</option>
+                  <option value='id'>ID順</option>
+                </select>
               </div>
               <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-2 sm:space-y-0'>
                 <input
@@ -398,8 +431,8 @@ export default function App() {
 
       <div className='mx-auto max-w-[1920px] px-8'>
         <div className='grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5 2xl:grid-cols-6'>
-          {users &&
-            users.map(user => {
+          {sortedUsers &&
+            sortedUsers.map(user => {
               const isRecording = recordings?.some(r => r.screen_id === user.screen_id) ?? false
               return <ProfileCard key={user.user_id} user={user} isRecording={isRecording} />
             })}
