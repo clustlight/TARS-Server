@@ -190,7 +190,7 @@ export default function App() {
                 </button>
               </div>
               <div className='flex items-center space-x-2'>
-                {isLoading && (
+                {isLoading && isUpdateDelayed && (
                   <div className='flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400'>
                     <svg className='h-3.5 w-3.5 animate-spin' fill='none' viewBox='0 0 24 24'>
                       <circle
