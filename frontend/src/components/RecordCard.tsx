@@ -1,8 +1,5 @@
-import { Recording } from '../types/tars'
 import dayjs from 'dayjs'
-import Image from 'next/image'
-import Link from 'next/link'
-import React from 'react'
+import { Recording } from '../types/tars'
 
 type Props = {
   recording: Recording
@@ -15,20 +12,20 @@ const RecordCard = ({ recording }: Props) => {
   return (
     <div className='mx-3 space-y-1 rounded-xl border-2 border-indigo-400 bg-slate-200 py-6 shadow-2xl'>
       <div className='flex justify-center'>
-        <Link href={liveUrl}>
-          <Image
+        <a href={liveUrl} rel='noreferrer' target='_blank'>
+          <img
             src={thumbnailUrl}
             alt={`${recording.user_name}'s thumbnail`}
             height={300}
             width={200}
-            priority={true}
             className='rounded-xl'
+            loading='lazy'
           />
-        </Link>
+        </a>
       </div>
 
       <div className='flex justify-center'>
-        <Link href={liveUrl}>
+        <a href={liveUrl} rel='noreferrer' target='_blank'>
           <div className='my-2 space-y-1'>
             <span className='mx-1 block font-semibold'>{recording.live_title}</span>
             <span className='mx-1 block'>
@@ -39,26 +36,27 @@ const RecordCard = ({ recording }: Props) => {
               {dayjs().diff(dayjs.unix(recording.start_time), 'minute')}分経過
             </span>
           </div>
-        </Link>
+        </a>
       </div>
 
       <div className='flex items-center justify-center space-x-2 py-3'>
-        <Link href={recording.profile_image}>
-          <Image
+        <a href={recording.profile_image} rel='noreferrer' target='_blank'>
+          <img
             src={recording.profile_image}
             alt={`${recording.screen_id}'s icon`}
             height={45}
             width={45}
             className='rounded-3xl border-2 border-red-600 p-0.5'
+            loading='lazy'
           />
-        </Link>
+        </a>
 
-        <Link href={liveUrl}>
+        <a href={liveUrl} rel='noreferrer' target='_blank'>
           <div className='w-[150px]'>
             <span className='block truncate text-base font-semibold'>{recording.user_name}</span>
             <span className='block truncate text-sm text-gray-400'>@{recording.screen_id}</span>
           </div>
-        </Link>
+        </a>
       </div>
     </div>
   )
