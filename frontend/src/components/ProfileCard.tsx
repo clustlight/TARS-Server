@@ -1,7 +1,4 @@
-import React from 'react'
 import { User } from '../types/tars'
-import Link from 'next/link'
-import Image from 'next/image'
 
 type Props = {
   user: User
@@ -14,17 +11,18 @@ const ProfileCard = ({ user }: Props) => {
   return (
     <div className='space-y-1 rounded-xl border-2 border-amber-500 bg-white shadow-2xl max-lg:py-6 lg:py-4'>
       <div className='max-w mx-auto flex items-center justify-center space-x-2 py-3'>
-        <Link href={profileUrl}>
-          <Image
+        <a href={profileUrl} rel='noreferrer' target='_blank'>
+          <img
             src={user.profile_image ? user.profile_image : iconPlaceholder}
             alt={`${user.screen_id}'s icon`}
             height={45}
             width={45}
             className='rounded-3xl border-2 border-gray-500'
+            loading='lazy'
           />
-        </Link>
+        </a>
 
-        <Link href={profileUrl}>
+        <a href={profileUrl} rel='noreferrer' target='_blank'>
           <div>
             <span className='block truncate text-base font-semibold sm:w-[120px] xl:w-[180px]'>
               {user.user_name}
@@ -33,7 +31,7 @@ const ProfileCard = ({ user }: Props) => {
               @{user.screen_id}
             </span>
           </div>
-        </Link>
+        </a>
       </div>
 
       <div className='flex justify-center space-x-4'>

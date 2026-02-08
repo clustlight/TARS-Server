@@ -1,9 +1,9 @@
 import os
 import pathlib
 
-from fastapi import FastAPI, status, Response, Request
+from fastapi import FastAPI, status, Response
+from fastapi.responses import FileResponse, JSONResponse
 from starlette.middleware.cors import CORSMiddleware
-from fastapi.templating import Jinja2Templates
 from starlette.staticfiles import StaticFiles
 
 from metadata import MetadataManager
@@ -19,16 +19,16 @@ twitcasting = Twitcasting()
 discord = Discord()
 app = FastAPI()
 
-PATH_STATIC = str(pathlib.Path(__file__).resolve().parent / "templates")
-templates = Jinja2Templates(directory=PATH_STATIC)
+PATH_FRONTEND_DIST = pathlib.Path(__file__).resolve().parent / "web"
+PATH_FRONTEND_INDEX = PATH_FRONTEND_DIST / "index.html"
+PATH_FRONTEND_ASSETS = PATH_FRONTEND_DIST / "assets"
 
-PATH_STATIC_NEXT = str(pathlib.Path(__file__).resolve().parent / "templates/_next")
-
-app.mount(
-    '/_next',
-    StaticFiles(directory=PATH_STATIC_NEXT),
-    name='next'
-)
+if PATH_FRONTEND_ASSETS.exists():
+    app.mount(
+        '/assets',
+        StaticFiles(directory=str(PATH_FRONTEND_ASSETS)),
+        name='assets'
+    )
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,11 +41,15 @@ app.add_middleware(
 port = os.environ.get("PORT")
 
 
+def serve_frontend_index():
+    if PATH_FRONTEND_INDEX.exists():
+        return FileResponse(str(PATH_FRONTEND_INDEX))
+    return JSONResponse({"error": "frontend not built"}, status_code=status.HTTP_404_NOT_FOUND)
+
+
 @app.get("/", status_code=status.HTTP_200_OK)
-async def root(request: Request):
-    return templates.TemplateResponse("index.html", {
-        "request": request
-    })
+async def root():
+    return serve_frontend_index()
 
 
 @app.get("/recordings", status_code=status.HTTP_200_OK)
@@ -245,3 +249,11 @@ async def get_users():
         ]
 
     return response
+
+
+@app.get("/{path:path}", status_code=status.HTTP_200_OK)
+async def spa_fallback(path: str):
+    file_path = PATH_FRONTEND_DIST / path
+    if file_path.is_file():
+        return FileResponse(str(file_path))
+    return serve_frontend_index()

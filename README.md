@@ -7,7 +7,7 @@ ___
 __[TARS-Outpost](https://github.com/clustlight/TARS-Outpost) is required to use the automatic recording feature__
 
 ### Set environment variable
-Rename `.env.sample` to `.env` and fill in the required information
+Rename `.env.example` to `.env` and fill in the required information
 
 | Parameter                 | Description                                              | Default Value                                              | Required |
 |---------------------------|----------------------------------------------------------|------------------------------------------------------------|----------|
@@ -49,6 +49,35 @@ $ docker compose up
 ```
 
 GUI: `http://<your-server>:${PORT}`
+
+## Development
+
+### Backend Setup
+Follow the same steps as production setup above.
+
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```shell
+   $ cd frontend
+   ```
+
+2. Set up environment variables:
+   ```shell
+   $ cp .env.example .env
+   ```
+   
+3. (Optional) Edit `.env` to change the backend URL if your backend is running on a different port:
+   ```
+   VITE_BACKEND_URL=http://localhost:3880
+   ```
+
+4. Install dependencies and run the development server:
+   ```shell
+   $ npm install
+   $ npm run dev
+   ```
+
+The frontend dev server will run on `http://localhost:5173` and proxy API requests to the backend.
 
 ## API Reference
 ### Recordings

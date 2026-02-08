@@ -13,7 +13,7 @@ RUN poetry export --without-hashes -f requirements.txt -o requirements.txt
 RUN pip install -r requirements.txt
 
 
-FROM node:18.17.1-bookworm-slim AS frontend-builder
+FROM node:24-bookworm-slim AS frontend-builder
 
 WORKDIR /frontend
 
@@ -38,6 +38,6 @@ COPY --from=mwader/static-ffmpeg:4.4.1 /ffmpeg /usr/bin/ffmpeg
 WORKDIR /app
 
 COPY backend/src/ /app/src/
-COPY --from=frontend-builder /frontend/out/ /app/src/templates/
+COPY --from=frontend-builder /frontend/dist/ /app/src/web/
 
 ENTRYPOINT ["python3", "/app/src/main.py"]
