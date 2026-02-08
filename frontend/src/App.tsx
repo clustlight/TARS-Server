@@ -204,9 +204,7 @@ export default function App() {
                     return
                   }
 
-                  addUser(resolvedBaseUrl, value).then(() =>
-                    setRefresh(previous => !previous)
-                  )
+                  addUser(resolvedBaseUrl, value).then(() => setRefresh(previous => !previous))
                 }}
               >
                 追加
@@ -219,9 +217,7 @@ export default function App() {
                     return
                   }
 
-                  removeUser(resolvedBaseUrl, value).then(() =>
-                    setRefresh(previous => !previous)
-                  )
+                  removeUser(resolvedBaseUrl, value).then(() => setRefresh(previous => !previous))
                 }}
               >
                 削除
