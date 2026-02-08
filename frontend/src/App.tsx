@@ -64,19 +64,30 @@ const removeUser = async (baseUrl: string, screenId: string) => {
   return data as User
 }
 
+const extractScreenId = (input: string): string => {
+  const trimmed = input.trim()
+  const urlMatch = trimmed.match(/twitcasting\.tv\/([^/?#]+)/)
+  if (urlMatch && urlMatch[1]) {
+    return urlMatch[1]
+  }
+  return trimmed
+}
+
 export default function App() {
   const [recordings, setRecordings] = useState<Recording[]>([])
   const [users, setUsers] = useState<User[]>([])
   const [refresh, setRefresh] = useState<boolean>(false)
   const [updateAt, setUpdateAt] = useState<string>('---')
+  const [updateTimestamp, setUpdateTimestamp] = useState<number | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false)
+  const [currentTime, setCurrentTime] = useState<number>(dayjs().unix())
 
   const recordingInputRef = useRef<HTMLInputElement>(null)
   const userInputRef = useRef<HTMLInputElement>(null)
 
   const intervalInputRef = useRef<HTMLInputElement>(null)
-  const [intervalSec, setIntervalSec] = useState<number>(30)
+  const [intervalSec, setIntervalSec] = useState<number>(5)
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme')
@@ -95,30 +106,44 @@ export default function App() {
   }
 
   useEffect(() => {
-    const resolvedBaseUrl = normalizeBaseUrl(window.location.origin)
+    const interval = setInterval(() => {
+      setCurrentTime(dayjs().unix())
+    }, 1000)
 
-    setIsLoading(true)
-    setUpdateAt('----/--/-- --:--:--')
+    return () => clearInterval(interval)
+  }, [])
 
-    Promise.all([getRecordings(resolvedBaseUrl), getUsers(resolvedBaseUrl)])
-      .then(([recordingsData, usersData]) => {
-        setRecordings(recordingsData)
-        setUsers(usersData)
-        setUpdateAt(dayjs().format('YYYY/MM/DD HH:mm:ss'))
-        setIsLoading(false)
-      })
-      .catch(() => {
-        setIsLoading(false)
-      })
-
+  useEffect(() => {
     const interval = setInterval(() => {
       setRefresh(previous => !previous)
     }, intervalSec * 1000)
 
     return () => clearInterval(interval)
-  }, [refresh, intervalSec])
+  }, [intervalSec])
+
+  useEffect(() => {
+    const resolvedBaseUrl = normalizeBaseUrl(window.location.origin)
+
+    setIsLoading(true)
+
+    Promise.all([getRecordings(resolvedBaseUrl), getUsers(resolvedBaseUrl)])
+      .then(([recordingsData, usersData]) => {
+        setRecordings(recordingsData)
+        setUsers(usersData)
+        const now = dayjs()
+        setUpdateAt(now.format('YYYY/MM/DD HH:mm:ss'))
+        setUpdateTimestamp(now.unix())
+        setIsLoading(false)
+      })
+      .catch(() => {
+        setIsLoading(false)
+      })
+  }, [refresh])
 
   const resolvedBaseUrl = normalizeBaseUrl(window.location.origin)
+
+  const isUpdateDelayed =
+    updateTimestamp !== null && currentTime - updateTimestamp > intervalSec * 2
 
   return (
     <main className='min-h-screen bg-gray-50 px-4 py-8 dark:bg-gray-900 md:px-10'>
@@ -147,7 +172,7 @@ export default function App() {
                   <input
                     type='text'
                     ref={intervalInputRef}
-                    defaultValue='15'
+                    defaultValue='5'
                     className='w-20 rounded-lg border border-gray-300 bg-gray-50 px-3 py-1.5 text-center text-sm outline-none transition-all focus:border-gray-400 focus:bg-white focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:border-gray-500 dark:focus:bg-gray-600'
                   />
                   <span className='text-xs text-gray-500 dark:text-gray-400'>秒</span>
@@ -185,12 +210,28 @@ export default function App() {
                     <span>更新中...</span>
                   </div>
                 )}
-                <div className='flex items-center space-x-1.5 rounded-full bg-green-50 px-3 py-1.5 dark:bg-green-900/30'>
-                  <div className='h-1.5 w-1.5 animate-pulse rounded-full bg-green-500'></div>
+                <div
+                  className={`flex items-center space-x-1.5 rounded-full px-3 py-1.5 ${
+                    isUpdateDelayed
+                      ? 'bg-red-50 dark:bg-red-900/30'
+                      : 'bg-green-50 dark:bg-green-900/30'
+                  }`}
+                >
+                  <div
+                    className={`h-1.5 w-1.5 animate-pulse rounded-full ${
+                      isUpdateDelayed ? 'bg-red-500' : 'bg-green-500'
+                    }`}
+                  ></div>
                   <span className='text-xs font-medium text-gray-600 dark:text-gray-300'>
                     最終更新
                   </span>
-                  <span className='text-xs font-semibold text-gray-900 dark:text-white'>
+                  <span
+                    className={`text-xs font-semibold ${
+                      isUpdateDelayed
+                        ? 'text-red-700 dark:text-red-400'
+                        : 'text-gray-900 dark:text-white'
+                    }`}
+                  >
                     {updateAt}
                   </span>
                 </div>
@@ -214,7 +255,7 @@ export default function App() {
                 <input
                   type='text'
                   ref={recordingInputRef}
-                  placeholder='スクリーンIDを入力...'
+                  placeholder='スクリーンID または URL を入力...'
                   className='rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm outline-none transition-all focus:border-gray-400 focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-gray-500 sm:w-64'
                 />
                 <div className='flex space-x-2'>
@@ -226,7 +267,8 @@ export default function App() {
                         return
                       }
 
-                      startRecording(resolvedBaseUrl, value).then(newRecording => {
+                      const screenId = extractScreenId(value)
+                      startRecording(resolvedBaseUrl, screenId).then(newRecording => {
                         setRecordings(prev => {
                           const exists = prev.find(r => r.live_id === newRecording.live_id)
                           if (exists) {
@@ -252,8 +294,9 @@ export default function App() {
                         return
                       }
 
-                      stopRecording(resolvedBaseUrl, value).then(() => {
-                        setRecordings(prev => prev.filter(r => r.screen_id !== value))
+                      const screenId = extractScreenId(value)
+                      stopRecording(resolvedBaseUrl, screenId).then(() => {
+                        setRecordings(prev => prev.filter(r => r.screen_id !== screenId))
                         if (recordingInputRef.current) {
                           recordingInputRef.current.value = ''
                         }
@@ -298,7 +341,7 @@ export default function App() {
                 <input
                   type='text'
                   ref={userInputRef}
-                  placeholder='スクリーンIDを入力...'
+                  placeholder='スクリーンID または URL を入力...'
                   className='rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm outline-none transition-all focus:border-gray-400 focus:ring-2 focus:ring-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-gray-500 sm:w-64'
                 />
                 <div className='flex space-x-2'>
@@ -310,7 +353,8 @@ export default function App() {
                         return
                       }
 
-                      addUser(resolvedBaseUrl, value).then(newUser => {
+                      const screenId = extractScreenId(value)
+                      addUser(resolvedBaseUrl, screenId).then(newUser => {
                         setUsers(prev => {
                           const exists = prev.find(u => u.user_id === newUser.user_id)
                           if (exists) {
@@ -334,8 +378,9 @@ export default function App() {
                         return
                       }
 
-                      removeUser(resolvedBaseUrl, value).then(() => {
-                        setUsers(prev => prev.filter(u => u.screen_id !== value))
+                      const screenId = extractScreenId(value)
+                      removeUser(resolvedBaseUrl, screenId).then(() => {
+                        setUsers(prev => prev.filter(u => u.screen_id !== screenId))
                         if (userInputRef.current) {
                           userInputRef.current.value = ''
                         }
@@ -353,7 +398,11 @@ export default function App() {
 
       <div className='mx-auto max-w-[1920px] px-8'>
         <div className='grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5 2xl:grid-cols-6'>
-          {users && users.map(user => <ProfileCard key={user.user_id} user={user} />)}
+          {users &&
+            users.map(user => {
+              const isRecording = recordings?.some(r => r.screen_id === user.screen_id) ?? false
+              return <ProfileCard key={user.user_id} user={user} isRecording={isRecording} />
+            })}
         </div>
       </div>
     </main>
