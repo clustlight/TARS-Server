@@ -2,22 +2,45 @@ import { User } from '../types/tars'
 
 type Props = {
   user: User
+  isRecording: boolean
 }
 
-const ProfileCard = ({ user }: Props) => {
+const ProfileCard = ({ user, isRecording }: Props) => {
   const profileUrl = `https://twitcasting.tv/${user.screen_id}`
   const iconPlaceholder = 'https://twitcasting.tv/img/twitcas_guest1_64.jpg'
 
   return (
-    <div className='@container group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md transition-all hover:border-amber-400 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 dark:hover:border-amber-500'>
+    <div
+      className={`@container group overflow-hidden rounded-xl border bg-white shadow-md transition-all hover:shadow-xl dark:bg-gray-800 ${
+        isRecording
+          ? 'border-red-400 shadow-red-100 hover:border-red-500 hover:shadow-red-200 dark:border-red-500 dark:shadow-red-900/50 dark:hover:border-red-400'
+          : 'border-gray-200 hover:border-amber-400 dark:border-gray-700 dark:hover:border-amber-500'
+      }`}
+    >
       <div className='mx-auto flex items-center space-x-3 px-4 py-5'>
         <a href={profileUrl} rel='noreferrer' target='_blank' className='flex-shrink-0'>
           <div className='relative'>
-            <div className='absolute -inset-0.5 rounded-full bg-gradient-to-r from-red-500 to-red-400 opacity-0 blur transition-opacity group-hover:opacity-75'></div>
+            {isRecording && (
+              <div className='absolute -right-1 -top-1 z-10'>
+                <span className='flex h-5 w-5 items-center justify-center'>
+                  <span className='absolute inline-flex h-full w-full animate-ping-slow rounded-full bg-red-400 opacity-75'></span>
+                  <span className='relative inline-flex h-3 w-3 rounded-full bg-red-500'></span>
+                </span>
+              </div>
+            )}
+            <div
+              className={`absolute -inset-0.5 rounded-full bg-gradient-to-r opacity-0 blur transition-opacity group-hover:opacity-75 ${
+                isRecording ? 'from-red-500 to-red-400' : 'from-gray-500 to-gray-400'
+              }`}
+            ></div>
             <img
               src={user.profile_image ? user.profile_image : iconPlaceholder}
               alt={`${user.screen_id}'s icon`}
-              className='relative h-14 w-14 flex-shrink-0 rounded-full border-2 border-white object-cover ring-2 ring-red-500 transition-all group-hover:ring-red-600'
+              className={`relative h-14 w-14 flex-shrink-0 rounded-full border-2 border-white object-cover ring-[2.5px] transition-all ${
+                isRecording
+                  ? 'ring-red-500 group-hover:ring-red-600'
+                  : 'ring-gray-500 group-hover:ring-gray-600'
+              }`}
               loading='lazy'
             />
           </div>

@@ -87,7 +87,7 @@ const RecordCard = ({ recording }: Props) => {
         </a>
       </div>
 
-      <div className='mt-auto flex items-center space-x-3 border-t border-gray-100 bg-gradient-to-b from-gray-50 to-white px-4 py-3 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800'>
+      <div className='mt-auto flex items-center space-x-3 border-t border-gray-100 bg-gradient-to-b from-gray-50 to-white px-12 py-3 dark:border-gray-700 dark:from-gray-800 dark:to-gray-800'>
         <a
           href={recording.profile_image}
           rel='noreferrer'
