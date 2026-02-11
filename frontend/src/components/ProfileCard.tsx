@@ -36,7 +36,7 @@ const ProfileCard = ({ user, isRecording }: Props) => {
             <img
               src={user.profile_image ? user.profile_image : iconPlaceholder}
               alt={`${user.screen_id}'s icon`}
-              className={`relative h-14 w-14 flex-shrink-0 rounded-full border-2 border-white object-cover ring-2 transition-all ${
+              className={`relative h-14 w-14 flex-shrink-0 rounded-full border-2 border-white object-cover ring-[2.5px] transition-all ${
                 isRecording
                   ? 'ring-red-500 group-hover:ring-red-600'
                   : 'ring-gray-500 group-hover:ring-gray-600'
