@@ -1,11 +1,33 @@
 import os
 import pathlib
+import re
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
 
 import requests
 import utils
 import logging
+
+
+def has_filler_init_map(playlist_content):
+    current_init_number = None
+
+    for line in playlist_content.splitlines():
+        stripped_line = line.strip()
+        if not stripped_line:
+            continue
+
+        init_match = re.search(r'init\.(-?\d+)\.mp4', stripped_line)
+        if init_match:
+            current_init_number = init_match.group(1)
+            continue
+
+        if stripped_line.startswith("#"):
+            continue
+
+        return current_init_number == "-1"
+
+    return True
 
 
 def get_video_stream_url(screen_id, event):
@@ -26,19 +48,18 @@ def get_video_stream_url(screen_id, event):
         logger.error("No valid stream URL found.")
         return
 
-    # A filler is streamed on the server side until the broadcast starts, but by default, it cannot adapt to resolution changes.
-    # When the filler is being streamed, the segment file names include the term "preroll".
-    # To start recording after the resolution changes, ensure that the term "preroll" is no longer detected.
+    # A filler is streamed on the server side until the broadcast starts.
+    # Wait until the playlist switches away from init.-1.mp4 before starting the recording.
 
-    MAX_RETRIES = 20
+    MAX_RETRIES = 60
     for retry_count in range(MAX_RETRIES):
         logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Checking m3u8 playlist... ({screen_id})")
         res = requests.get(url=url, stream=True)
         if res.status_code == 200:
             logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Successfully fetched m3u8 playlist. ({screen_id})")
             playlist_content = res.content.decode("utf-8")
-            if "preroll" not in playlist_content:
-                logger.debug(f"Preroll segment is no longer present in the playlist. Starting recording. ({screen_id})")
+            if not has_filler_init_map(playlist_content):
+                logger.debug(f"Playlist switched away from init.-1.mp4. Starting recording. ({screen_id})")
                 return url
         else:
             logger.warning(f"[{retry_count + 1}/{MAX_RETRIES}] Failed to fetch m3u8 playlist. Status code: {res.status_code}")
