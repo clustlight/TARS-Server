@@ -30,7 +30,7 @@ def main():
         executor.submit(start_api_server)
         if os.environ.get("AUTO_RECORDING").lower() in ('true', 'enable', 'on'):
             executor.submit(start_websocket_client)
-        executor.submit(fetch_scheduler, os.environ.get("PORT"))
+        executor.submit(fetch_scheduler)
 
 
 if __name__ == "__main__":

@@ -2,10 +2,11 @@ import asyncio
 import json
 import logging
 import os
-import requests
 import websockets.client
 import socket
 from time import sleep
+
+from usecases import start_recording
 
 
 def start_websocket_client():
@@ -13,18 +14,16 @@ def start_websocket_client():
         stream_notification(
             os.environ.get("NOTIFICATION_SERVER_URL"),
             os.environ.get("NOTIFICATION_SERVER_TOKEN"),
-            os.environ.get("PORT"),
         )
     )
 
-async def stream_notification(url, token, port):
+async def stream_notification(url, token):
     """
     Connects to the Notification Server and handles live start/end events.
 
     Args:
         url (str): The WebSocket URL of the Notification Server.
         token (str): The access token for authentication.
-        port (str): The port number for local server communication.
     """
     sleep(1)
     logger = logging.getLogger("Notification")
@@ -50,7 +49,9 @@ async def stream_notification(url, token, port):
                     screen_id = message['broadcaster']['screen_id']
                     if message["event"] == "livestart":
                         logger.info(f"Received LIVE START Notification ({screen_id})")
-                        requests.post(f"http://localhost:{port}/recordings/{screen_id}")
+                        result = start_recording(screen_id)
+                        if not result.ok and result.status_code != 409:
+                            logger.error(f"Failed to start recording for {screen_id}: {result.error}")
                     elif message["event"] == "liveend":
                         logger.info(f"Received LIVE END Notification ({screen_id})")
         except websockets.ConnectionClosedError as e:
