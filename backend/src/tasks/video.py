@@ -4,9 +4,13 @@ import re
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
 
-import requests
 import utils
 import logging
+
+from twitcasting_stream import TwitcastingStreamClient
+
+
+stream_client = TwitcastingStreamClient()
 
 
 def has_filler_init_map(playlist_content):
@@ -32,16 +36,9 @@ def has_filler_init_map(playlist_content):
 
 def get_video_stream_url(screen_id, event):
     logger = logging.getLogger("Video")
-    response = requests.get(
-            'https://twitcasting.tv/streamserver.php',
-            params={
-                "mode": "client",
-                "target": screen_id,
-                "player": "pc_web"
-            }
-        )
+    response = stream_client.get_stream_server(screen_id)
 
-    streams = response.json().get("tc-hls", {}).get("streams", {})
+    streams = response.get("tc-hls", {}).get("streams", {})
     url = streams.get("high") or streams.get("medium") or streams.get("low")
 
     if not url:
@@ -54,7 +51,7 @@ def get_video_stream_url(screen_id, event):
     MAX_RETRIES = 60
     for retry_count in range(MAX_RETRIES):
         logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Checking m3u8 playlist... ({screen_id})")
-        res = requests.get(url=url, stream=True)
+        res = stream_client.get_playlist(url)
         if res.status_code == 200:
             logger.debug(f"[{retry_count + 1}/{MAX_RETRIES}] Successfully fetched m3u8 playlist. ({screen_id})")
             playlist_content = res.content.decode("utf-8")
