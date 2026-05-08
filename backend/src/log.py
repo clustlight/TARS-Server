@@ -4,21 +4,38 @@ import socket
 from logging.handlers import RotatingFileHandler, SysLogHandler
 
 
+def _get_log_level(level_name: str | None, default: int) -> int:
+    if not level_name:
+        return default
+
+    return getattr(logging, level_name.strip().upper(), default)
+
+
 def setup_logging():
     log_file_path = "./logs/tars_server.log"
     log_format = os.environ.get("LOG_FORMAT", '').strip() or '%(asctime)s [%(levelname)s] (%(name)s) >> %(message)s'
+    log_level = _get_log_level(os.environ.get("LOG_LEVEL"), logging.INFO)
     os.makedirs(os.path.dirname(log_file_path), exist_ok=True)
 
+    file_handler = RotatingFileHandler(
+        log_file_path, mode="a", maxBytes=5 * 1024 * 1024, backupCount=5, encoding="utf-8"
+    )
+    file_handler.setLevel(log_level)
+
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(log_level)
+
     logging.basicConfig(
-        level=logging.INFO,
+        level=logging.NOTSET,
         format=log_format,
         handlers=[
-            RotatingFileHandler(
-                log_file_path, mode="a", maxBytes=5 * 1024 * 1024, backupCount=5, encoding="utf-8"
-            ),
-            logging.StreamHandler()
+            file_handler,
+            stream_handler,
         ]
     )
+
+    for logger_name in ("websockets", "websockets.client", "websockets.server"):
+        logging.getLogger(logger_name).setLevel(logging.INFO)
 
     # Add SysLogHandler if syslog_address is provided
     syslog_address = os.environ.get("SYSLOG_ADDRESS", '').strip() or None

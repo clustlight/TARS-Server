@@ -9,6 +9,7 @@
 outputs/*
 temp/*
 data/*
+logs/*
 
 frontend/node_modules
 frontend/.next
