@@ -3,20 +3,17 @@ import json
 import os
 import shutil
 import logging
-import requests
 import websockets.client
 
+from twitcasting_stream import TwitcastingStreamClient
 from utils import escape_characters
 
 
+stream_client = TwitcastingStreamClient()
+
+
 def get_comment_stream_url(live_id):
-    headers = {
-        "User-Agent": os.environ.get("USER_AGENT")
-    }
-    data = {"movie_id": live_id}
-    files = {(None, None)}
-    response = requests.post("https://twitcasting.tv/eventpubsuburl.php", headers=headers, data=data, files=files)
-    return response.json()["url"]
+    return stream_client.get_comment_stream_url(live_id)
 
 def start_stream_comments(event, screen_id, websocket_url, file_title):
     asyncio.run(stream_comments(event, screen_id, websocket_url, file_title))

@@ -20,6 +20,7 @@ Rename `.env.example` to `.env` and fill in the required information
 | CLIENT_SECRET             | Twitcasting App Client Secret                            | None                                                       | Yes      |
 | DISCORD_WEBHOOK           | Enable Discord Webhook Notification                      | None                                                       | Yes      |
 | DISCORD_WEBHOOK_URL       | Discord Webhook URL                                      | None                                                       | No       |
+| LOG_LEVEL                 | File/stdout log level                                    | `INFO`                                                     | No       |
 | LOG_FORMAT                | Log message format                                       | `%(asctime)s [%(levelname)s] (%(name)s) >> %(message)s`    | No       |
 | SYSLOG_ADDRESS            | Syslog server address                                    | Not set (Syslog disabled)                                  | No       |
 | SYSLOG_PORT               | Syslog server port                                       | `514`                                                      | No       |
