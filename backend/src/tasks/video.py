@@ -1,5 +1,4 @@
 import os
-import pathlib
 import re
 from subprocess import Popen, PIPE, DEVNULL
 from time import sleep
@@ -80,9 +79,8 @@ def stream_video(event, screen_id, live_id, stream_url, file_title):
         "-http_persistent", "0",
         "-i", stream_url,
         "-c", "copy",
-        "-f", "segment",
-        "-segment_list_flags", "+live",
-        f"./temp/{screen_id}/{live_id}/%05d.ts"
+        "-f", "mpegts",
+        f"./temp/{screen_id}/{live_id}/recording.ts"
     ]
 
     process = Popen(
@@ -115,24 +113,16 @@ def stream_video(event, screen_id, live_id, stream_url, file_title):
 def shutdown_video_stream(logger, process, screen_id, live_id, file_title):
     sleep(2)
     process.terminate()
-    final_process = concatenate_segments(screen_id, live_id, file_title)
+    final_process = remux_recording(screen_id, live_id, file_title)
     final_process.wait()
     utils.delete_segment_directory(screen_id, live_id)
     logger.info(f"FFmpeg shutdown process completed ({screen_id})")
 
 
-def concatenate_segments(screen_id, live_id, title):
-    segment_dir = f"./temp/{screen_id}/{live_id}"
-    path = pathlib.Path(segment_dir)
-    index_file_path = f"{segment_dir}/index.txt"
-    with open(index_file_path, 'w') as f:
-        for item in sorted(path.glob("*.ts")):
-            f.write(f"file {item.name}\n")
-
+def remux_recording(screen_id, live_id, title):
     command = [
         "ffmpeg",
-        "-f", "concat",
-        "-i", index_file_path,
+        "-i", f"./temp/{screen_id}/{live_id}/recording.ts",
         "-c", "copy",
         "-movflags", "faststart",
         f"./outputs/{screen_id}/{title}.mp4"
